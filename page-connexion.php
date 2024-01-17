@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (password_verify($password, $hashed_password)) {
         $_SESSION["pseudo"] = $username;
-        header("Location: https://www.flaticon.com/free-icon/bin_9790368");
+        header("Location: page-profil.php");
         exit();
     } else {
         echo "Échec de la vérification du mot de passe.<br>";
@@ -64,16 +64,12 @@ $mysqli->close();
     <link rel="icon" href="logo.wissico1.png" type="image/x-icon">
 </head>
 <body>
-
-   
    <h2>Connexion</h2>
-
 <?php
 if (isset($error_message)) {
     echo "<p style='color: red;'>$error_message</p>";
 }
 ?>
-
     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
     <label for="pseudo">pseudo :</label>
     <input type="text" id="pseudo" name="pseudo" required><br>
@@ -81,9 +77,6 @@ if (isset($error_message)) {
     <input type="password" id="mot_de_passe" name="mot_de_passe" required>
     <button type="submit">Se Connecter</button>
     </form>
-
-
-
 </body>
 
 </html>
