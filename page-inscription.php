@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Connexion à la base de données
     $serveur = "127.0.0.1:3306";
     $nom_utilisateur = "u559440517_wissemdb";
-    $mot_de_passe = "12jaiappris03";
+    $mot_de_passe = "Wisshafa69-";
     $nom_base_de_donnees = "u559440517_jaiappris";
 
     $mysqli = new mysqli($serveur,  $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);
