@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
     }
 
-    $query = "SELECT mot_de_passe FROM users WHERE pseudo = ?";
+    $query = "SELECT mot_de_passe FROM Users WHERE pseudo = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("s", $username);
     $stmt->execute();
