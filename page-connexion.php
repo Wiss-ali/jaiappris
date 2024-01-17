@@ -12,7 +12,7 @@ $mot_de_passe = "12jaiappris03";
 $nom_base_de_donnees = "u559440517_jaiappris";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST["nom_utilisateur"];
+    $username = $_POST["pseudo"];
     $password = $_POST["mot_de_passe"];
 
     $mysqli = new mysqli($serveur,  $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
     }
 
-    $query = "SELECT mot_de_passe FROM users WHERE nom_utilisateur = ?";
+    $query = "SELECT mot_de_passe FROM users WHERE pseudo = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -36,8 +36,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo "Mot de passe saisi : " . $password . "<br>";
 
     if (password_verify($password, $hashed_password)) {
-        $_SESSION["nom_utilisateur"] = $username;
-        header("Location: page_accueil.php");
+        $_SESSION["pseudo"] = $username;
+        header("Location: google.fr");
         exit();
     } else {
         echo "Échec de la vérification du mot de passe.<br>";
@@ -64,10 +64,8 @@ $mysqli->close();
     <link rel="icon" href="logo.wissico1.png" type="image/x-icon">
 </head>
 <body>
-<img src="logo.wiss.png" alt="mon logo">
-<div class="corp">
-  
-   <div class="conn">
+
+   
    <h2>Connexion</h2>
 
 <?php
@@ -76,21 +74,14 @@ if (isset($error_message)) {
 }
 ?>
 
-   <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-<div class="lab">
-    <label for="nom_utilisateur">Utilisateur :</label>
-    <input type="text" id="nom_utilisateur" name="nom_utilisateur" required><br>
-</div>
-<div class="lab">
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+    <label for="pseudo">pseudo :</label>
+    <input type="text" id="pseudo" name="pseudo" required><br>
     <label for="mot_de_passe">Mot de passe :</label>
-    <input type="password" id="mot_de_passe" name="mot_de_passe" required><br>
-</div>
-
     <button type="submit">Se Connecter</button>
-   </form>
-   </div>
+    </form>
 
-</div>
+
 
 </body>
 
