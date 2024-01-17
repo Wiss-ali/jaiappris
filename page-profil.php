@@ -52,6 +52,19 @@ if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 }
 
+// Récupération des publications de l'utilisateur
+$publications = [];
+$queryPublications = "SELECT Publications.*, Users.pseudo FROM Publications LEFT JOIN Users ON Publications.id_Users = Users.id WHERE Publications.id_Users = ? ORDER BY Publications.date_publication DESC";
+$stmtPublications = $mysqli->prepare($queryPublications);
+$stmtPublications->bind_param("i", $userId);
+$stmtPublications->execute();
+$resultPublications = $stmtPublications->get_result();
+while ($publication = $resultPublications->fetch_assoc()) {
+    $publications[] = $publication;
+}
+$stmtPublications->close();
+
+
 foreach ($publications as &$publication) {
     $postId = $publication['id'];
 
@@ -78,17 +91,7 @@ foreach ($publications as &$publication) {
     $stmtCommentaires->close();
 }
 
-// Récupération des publications de l'utilisateur
-$publications = [];
-$queryPublications = "SELECT Publications.*, Users.pseudo FROM Publications LEFT JOIN Users ON Publications.id_Users = Users.id WHERE Publications.id_Users = ? ORDER BY Publications.date_publication DESC";
-$stmtPublications = $mysqli->prepare($queryPublications);
-$stmtPublications->bind_param("i", $userId);
-$stmtPublications->execute();
-$resultPublications = $stmtPublications->get_result();
-while ($publication = $resultPublications->fetch_assoc()) {
-    $publications[] = $publication;
-}
-$stmtPublications->close();
+
 
 // Fermeture de la requête préparée et de la connexion à la base de données
 $stmt->close();
