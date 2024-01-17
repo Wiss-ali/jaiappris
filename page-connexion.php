@@ -78,6 +78,7 @@ if (isset($error_message)) {
     <label for="pseudo">pseudo :</label>
     <input type="text" id="pseudo" name="pseudo" required><br>
     <label for="mot_de_passe">Mot de passe :</label>
+    <input type="password" id="mot_de_passe" name="mot_de_passe" required>
     <button type="submit">Se Connecter</button>
     </form>
 
