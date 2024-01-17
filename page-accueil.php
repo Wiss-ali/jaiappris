@@ -54,7 +54,7 @@ $mysqli->close();
 <body>
     <h1>Posts récents</h1>
     <div id="publications">
-    <?php foreach ($publications as $publication): ?>
+    <?php foreach ($posts as $publication): ?>
         <div class="publication">
             <p>Posté par: <?php echo htmlspecialchars($publication['pseudo']); ?></p>
             <p>Date: <?php echo htmlspecialchars($publication['date_publication']); ?></p>
