@@ -82,7 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 <h2>Formulaire d'inscription</h2>
-    <form method="post" action="inscription.php">
+    <form method="post" action="page-inscription.php">
         <div class="form-group">
             <label for="prenom">Prénom:</label>
             <input type="text" id="prenom" name="prenom">

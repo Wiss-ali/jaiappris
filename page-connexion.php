@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container">
         <h2>Formulaire de connexion</h2>
-        <form method="post" action="connexion.php">
+        <form method="post" action="page-connexion.php">
 
             <div class="form-group">
                 <label for="email">Email:</label>
