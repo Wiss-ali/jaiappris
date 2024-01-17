@@ -5,103 +5,93 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Définissez les informations de connexion à la base de données
+$serveur = "127.0.0.1:3306";
+$nom_utilisateur = "u559440517_wissemdb";
+$mot_de_passe = "12jaiappris03";
+$nom_base_de_donnees = "u559440517_jaiappris";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $servername = "127.0.0.1:3306";
-    $username = "u559440517_wissemdb";
-    $password = "12jaiappris03";
-    $dbname = "u559440517_jaiappris";
+    $username = $_POST["nom_utilisateur"];
+    $password = $_POST["mot_de_passe"];
 
-    try {
-        $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $mysqli = new mysqli($serveur,  $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);
 
-        // Préparation de la requête
-        $stmt = $conn->prepare("SELECT id, mot_de_passe FROM Users WHERE email = :email");
-        $stmt->bindParam(':email', $_POST['email']);
-        $stmt->execute();
-
-        // Vérification de l'utilisateur
-        if ($stmt->rowCount() == 1) {
-            $user = $stmt->fetch();
-            if (password_verify($_POST['mot_de_passe'], $user['mot_de_passe'])) {
-                // Le mot de passe est correct, démarrer une nouvelle session
-                $_SESSION['user_id'] = $user['id'];
-                echo "Connexion réussie";
-                // Rediriger l'utilisateur vers une autre page (page d'accueil par exemple)
-            } else {
-                echo "Mot de passe incorrect";
-            }
-        } else {
-            echo "Aucun utilisateur trouvé avec cet email";
-        }
-    } catch(PDOException $e) {
-        echo "Erreur : " . $e->getMessage();
+    if ($mysqli->connect_error) {
+        die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
     }
 
-    $conn = null;
+    $query = "SELECT mot_de_passe FROM users WHERE nom_utilisateur = ?";
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 1) {
+        $row = $result->fetch_assoc();
+        $hashed_password = $row['mot_de_passe'];
+
+    // Ajout pour le débogage
+    echo "Mot de passe haché récupéré : " . $hashed_password . "<br>";
+    echo "Mot de passe saisi : " . $password . "<br>";
+
+    if (password_verify($password, $hashed_password)) {
+        $_SESSION["nom_utilisateur"] = $username;
+        header("Location: page_accueil.php");
+        exit();
+    } else {
+        echo "Échec de la vérification du mot de passe.<br>";
+    }
+} else {
+    echo "Aucun utilisateur trouvé avec ce nom.<br>";
+}
+
+$stmt->close();
+$mysqli->close();
+
+}
+
+?>
+
+
+<!DOCTYPE html>
+<html lang="fr-fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de Connexion</title>
+    <link rel="stylesheet" href="connexion.css">
+    <link rel="icon" href="logo.wissico1.png" type="image/x-icon">
+</head>
+<body>
+<img src="logo.wiss.png" alt="mon logo">
+<div class="corp">
+  
+   <div class="conn">
+   <h2>Connexion</h2>
+
+<?php
+if (isset($error_message)) {
+    echo "<p style='color: red;'>$error_message</p>";
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Connexion</title>
-    <style>
-        /* Ajoutez vos styles ici. Exemple : */
-        .form-group {
-            margin-bottom: 10px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-        
-        .container {
-            width: 300px;
-            margin: auto;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Formulaire de connexion</h2>
-        <form method="post" action="page-connexion.php">
+   <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+<div class="lab">
+    <label for="nom_utilisateur">Utilisateur :</label>
+    <input type="text" id="nom_utilisateur" name="nom_utilisateur" required><br>
+</div>
+<div class="lab">
+    <label for="mot_de_passe">Mot de passe :</label>
+    <input type="password" id="mot_de_passe" name="mot_de_passe" required><br>
+</div>
 
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email">
-            </div>
-            <div class="form-group">
-                <label for="mot_de_passe">Mot de passe:</label>
-                <input type="mot_de_passe" id="mot_de_passe" name="mot_de_passe">
-            </div>
+    <button type="submit">Se Connecter</button>
+   </form>
+   </div>
 
-            <input type="submit" value="Se connecter">
+</div>
 
-        </form>
-    </div>
 </body>
+
 </html>

@@ -1,111 +1,92 @@
 <?php
 session_start();
 
+/*if (isset($_SESSION["nom_utilisateur"])) {
+    header("Location: page_accueil.php");
+    exit();
+}*/
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Ajoutez la logique de traitement de formulaire ici si la requête est de type POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Récupérez les données du formulaire
+    $usernameForm = $_POST["pseudo"];
+    $passwordForm = $_POST["mot_de_passe"];
+    $nom = $_POST["nom"];
+    $prenom = $_POST["prenom"];
+    $email = $_POST["email"];
+
+    // Validez et traitez les données
+
     // Connexion à la base de données
-    $servername = "127.0.0.1:3306";
-    $username = "u559440517_wissemdb";
-    $password = "12jaiappris03";
-    $dbname = "u559440517_jaiappris";
+    $serveur = "127.0.0.1:3306";
+    $nom_utilisateur = "u559440517_wissemdb";
+    $mot_de_passe = "12jaiappris03";
+    $nom_base_de_donnees = "u559440517_jaiappris";
 
-    try {
-        $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-        // Définit le mode d'erreur de PDO à exception
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $mysqli = new mysqli($serveur,  $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);
 
-        // Hachage du mot de passe
-        $hashed_password = password_hash($_POST['mot_de_passe'], PASSWORD_DEFAULT);
-
-        // Préparation de la requête d'insertion
-        $stmt = $conn->prepare("INSERT INTO Users (prenom, nom, pseudo, email, mot_de_passe) VALUES (:prenom, :nom, :pseudo, :email, :mot_de_passe)");
-        
-        // Liaison des paramètres
-        $stmt->bindParam(':prenom', $_POST['prenom']);
-        $stmt->bindParam(':nom', $_POST['nom']);
-        $stmt->bindParam(':pseudo', $_POST['pseudo']);
-        $stmt->bindParam(':email', $_POST['email']);
-        $stmt->bindParam(':mot_de_passe', $hashed_password);
-        
-        // Exécution de la requête
-        $stmt->execute();
-
-        echo "Nouvel enregistrement créé avec succès";
-    } catch(PDOException $e) {
-        echo "Erreur : " . $e->getMessage();
+    if ($mysqli->connect_error) {
+        die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
     }
 
-    $conn = null;
+    // Insérez les données de l'utilisateur dans la table des utilisateurs
+    $requete = "INSERT INTO users (pseudo, mot_de_passe, nom, prenom, email) VALUES (?, ?, ?, ?, ?)";
+    $statement = $mysqli->prepare($requete);
+    
+    if ($statement) {
+        $hashed_password = password_hash($passwordForm, PASSWORD_DEFAULT);
+        $statement->bind_param("sssss", $usernameForm, $hashed_password, $nom, $prenom, $email);
+        $resultat = $statement->execute();
+
+        if ($resultat) {
+            header("Location: page-connexion.php");
+            exit();
+        } else {
+            echo "Erreur lors de l'inscription: " . $statement->error;
+        }
+
+        $statement->close();
+    } else {
+        echo "Erreur de préparation de la requête: " . $mysqli->error;
+    }
+
+    $mysqli->close();
 }
 ?>
 
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label, input {
-            display: block;
-            width: 100%;
-        }
-
-        input[type="text"], input[type="email"], input[type="password"] {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>Inscription</title>
 </head>
 <body>
-<h2>Formulaire d'inscription</h2>
-    <form method="post" action="page-inscription.php">
-        <div class="form-group">
-            <label for="prenom">Prénom:</label>
-            <input type="text" id="prenom" name="prenom">
-        </div>
-        <div class="form-group">
-            <label for="nom">Nom:</label>
-            <input type="text" id="nom" name="nom">
-        </div>
-        <div class="form-group">
-            <label for="pseudo">Pseudo:</label>
-            <input type="text" id="pseudo" name="pseudo">
-        </div>
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email">
-        </div>
-        <div class="form-group">
-            <label for="mot_de_passe">Mot de passe:</label>
-            <input type="mot_de_passe" id="mot_de_passe" name="mot_de_passe">
-        </div>
-        <div class="form-group">
-            <input type="submit" value="S'inscrire">
-        </div>
-    </form>
+
+<h2>Inscription</h2>
+
+<form method="post" action="page-inscription.php">
+    <label for="pseudo">Nom d'Utilisateur:</label>
+    <input type="text" id="pseudo" name="pseudo" required><br>
+
+    <label for="mot_de_passe">Mot de Passe:</label>
+    <input type="password" id="mot_de_passe" name="mot_de_passe" required><br>
+
+    <label for="nom">Nom:</label>
+    <input type="text" id="nom" name="nom" required><br>
+
+    <label for="prenom">Prénom:</label>
+    <input type="text" id="prenom" name="prenom" required><br>
+
+    <label for="email">E-mail:</label>
+    <input type="email" id="email" name="email" required><br>
+
+    <button type="submit">S'Inscrire</button>
+</form>
+
 </body>
 </html>
