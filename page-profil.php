@@ -52,6 +52,32 @@ if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 }
 
+foreach ($publications as &$publication) {
+    $postId = $publication['id'];
+
+    // Récupération du nombre de likes pour le post
+    $queryLikes = "SELECT COUNT(*) as likesCount FROM Likes WHERE id_publication = ?";
+    $stmtLikes = $mysqli->prepare($queryLikes);
+    $stmtLikes->bind_param("i", $postId);
+    $stmtLikes->execute();
+    $resultLikes = $stmtLikes->get_result();
+    $likes = $resultLikes->fetch_assoc();
+    $publication['likes'] = $likes['likesCount'];
+    $stmtLikes->close();
+
+    // Récupération des commentaires pour le post
+    $publication['commentaires'] = [];
+    $queryCommentaires = "SELECT Commentaires.*, Users.pseudo FROM Commentaires LEFT JOIN Users ON Commentaires.id_Users = Users.id WHERE id_publication = ? ORDER BY date_commentaire DESC";
+    $stmtCommentaires = $mysqli->prepare($queryCommentaires);
+    $stmtCommentaires->bind_param("i", $postId);
+    $stmtCommentaires->execute();
+    $resultCommentaires = $stmtCommentaires->get_result();
+    while ($commentaire = $resultCommentaires->fetch_assoc()) {
+        $publication['commentaires'][] = $commentaire;
+    }
+    $stmtCommentaires->close();
+}
+
 // Récupération des publications de l'utilisateur
 $publications = [];
 $queryPublications = "SELECT Publications.*, Users.pseudo FROM Publications LEFT JOIN Users ON Publications.id_Users = Users.id WHERE Publications.id_Users = ? ORDER BY Publications.date_publication DESC";
@@ -113,15 +139,40 @@ $mysqli->close();
 
             <!-- Affichage des publications de l'utilisateur -->
         <h2>Vos publications</h2>
+        
         <div id="publications">
             <?php foreach ($publications as $publication): ?>
                 <div class="publication">
-                    <p><?php echo htmlspecialchars($publication['pseudo']); ?></p>
-                    <p><?php echo htmlspecialchars($publication['date_publication']); ?></p>
+                    <p>Posté par: <?php echo htmlspecialchars($publication['pseudo']); ?></p>
+                    <p>Date: <?php echo htmlspecialchars($publication['date_publication']); ?></p>
                     <p><?php echo nl2br(htmlspecialchars($publication['contenu'])); ?></p>
                     <?php if ($publication['chemin_image']): ?>
-                        <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image de la publication" style="width: 100px; height: auto;">
+                        <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image du post" style="width: 100px; height: auto;">
                     <?php endif; ?>
+            
+                    <!-- Section pour les likes -->
+                    <p>Likes: <?php echo htmlspecialchars($publication['likes']); ?></p>
+            
+                    <!-- Bouton pour liker la publication (doit être intégré avec votre logique de traitement) -->
+                    <form method="post" action="traiter-like.php">
+                        <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
+                        <button type="submit" name="like">Like</button>
+                    </form>
+
+                    <!-- Section pour les commentaires -->
+                    <h3>Commentaires:</h3>
+                    <?php foreach ($publication['commentaires'] as $commentaire): ?>
+                        <div class="commentaire">
+                            <p><?php echo htmlspecialchars($commentaire['pseudo']); ?> (<?php echo htmlspecialchars($commentaire['date_commentaire']); ?>): <?php echo nl2br(htmlspecialchars($commentaire['contenu'])); ?></p>
+                        </div>
+                    <?php endforeach; ?>
+            
+                    <!-- Formulaire pour ajouter un commentaire -->
+                    <form method="post" action="traiter-commentaire.php">
+                        <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
+                        <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea><br>
+                        <button type="submit" name="comment">Commenter</button>
+                    </form>
                 </div>
             <?php endforeach; ?>
         </div>

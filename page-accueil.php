@@ -53,25 +53,42 @@ $mysqli->close();
 </head>
 <body>
     <h1>Posts récents</h1>
-    <div id="posts">
-        <?php foreach ($posts as $post): ?>
-            <div class="post">
-                <p>Posté par: <?php echo htmlspecialchars($post['pseudo']); ?></p>
-                <p>Date: <?php echo htmlspecialchars($post['date_publication']); ?></p>
-                <p><?php echo nl2br(htmlspecialchars($post['contenu'])); ?></p>
-                <?php if ($post['chemin_image']): ?>
-                    <img src="<?php echo htmlspecialchars($post['chemin_image']); ?>" alt="Image du post" style="width: 100px; height: auto;">
-                <?php endif; ?>
-                <p>Likes: <?php echo htmlspecialchars($post['likes']); ?></p>
-                
-                <h3>Commentaires:</h3>
-                <?php foreach ($post['commentaires'] as $commentaire): ?>
-                    <div class="commentaire">
-                        <p><?php echo htmlspecialchars($commentaire['pseudo']); ?>: <?php echo nl2br(htmlspecialchars($commentaire['contenu'])); ?></p>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endforeach; ?>
-    </div>
+    <div id="publications">
+    <?php foreach ($publications as $publication): ?>
+        <div class="publication">
+            <p>Posté par: <?php echo htmlspecialchars($publication['pseudo']); ?></p>
+            <p>Date: <?php echo htmlspecialchars($publication['date_publication']); ?></p>
+            <p><?php echo nl2br(htmlspecialchars($publication['contenu'])); ?></p>
+            <?php if ($publication['chemin_image']): ?>
+                <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image du post" style="width: 100px; height: auto;">
+            <?php endif; ?>
+            
+            <!-- Section pour les likes -->
+            <p>Likes: <?php echo htmlspecialchars($publication['likes']); ?></p>
+            
+            <!-- Bouton pour liker la publication (doit être intégré avec votre logique de traitement) -->
+            <form method="post" action="traiter-like.php">
+                <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
+                <button type="submit" name="like">Like</button>
+            </form>
+
+            <!-- Section pour les commentaires -->
+            <h3>Commentaires:</h3>
+            <?php foreach ($publication['commentaires'] as $commentaire): ?>
+                <div class="commentaire">
+                    <p><?php echo htmlspecialchars($commentaire['pseudo']); ?> (<?php echo htmlspecialchars($commentaire['date_commentaire']); ?>): <?php echo nl2br(htmlspecialchars($commentaire['contenu'])); ?></p>
+                </div>
+            <?php endforeach; ?>
+            
+            <!-- Formulaire pour ajouter un commentaire -->
+            <form method="post" action="traiter-commentaire.php">
+                <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
+                <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea><br>
+                <button type="submit" name="comment">Commenter</button>
+            </form>
+        </div>
+    <?php endforeach; ?>
+</div>
+
 </body>
 </html>
