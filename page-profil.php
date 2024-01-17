@@ -52,6 +52,18 @@ if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 }
 
+// Récupération des publications de l'utilisateur
+$publications = [];
+$queryPublications = "SELECT Publications.*, Users.pseudo FROM Publications LEFT JOIN Users ON Publications.id_Users = Users.id WHERE Publications.id_Users = ? ORDER BY Publications.date_publication DESC";
+$stmtPublications = $mysqli->prepare($queryPublications);
+$stmtPublications->bind_param("i", $userId);
+$stmtPublications->execute();
+$resultPublications = $stmtPublications->get_result();
+while ($publication = $resultPublications->fetch_assoc()) {
+    $publications[] = $publication;
+}
+$stmtPublications->close();
+
 // Fermeture de la requête préparée et de la connexion à la base de données
 $stmt->close();
 $mysqli->close();
@@ -82,6 +94,51 @@ $mysqli->close();
             
             <button type="submit">Mettre à jour le profil</button>
         </form>
+
+        <!-- Bouton pour afficher le formulaire de publication -->
+        <button id="btnAjouterPost">Ajouter un nouveau post</button>
+
+          <!-- Popup formulaire pour ajouter un nouveau post -->
+        <div id="popupForm" style="display:none;">
+
+            <h2>Ajouter un nouveau post</h2>
+
+            <form method="post" action="traiter-publication.php" enctype="multipart/form-data">
+                <textarea name="contenu" placeholder="Votre post ici..." required></textarea><br>
+                <input type="file" name="image" accept="image/*"><br>
+                <button type="button" onclick="togglePopup()">Annuler</button>
+                <button type="submit" name="submit">Ajouter</button>
+            </form>
+        </div>
+
+            <!-- Affichage des publications de l'utilisateur -->
+        <h2>Vos publications</h2>
+        <div id="publications">
+            <?php foreach ($publications as $publication): ?>
+                <div class="publication">
+                    <p><?php echo htmlspecialchars($publication['pseudo']); ?></p>
+                    <p><?php echo htmlspecialchars($publication['date_publication']); ?></p>
+                    <p><?php echo nl2br(htmlspecialchars($publication['contenu'])); ?></p>
+                    <?php if ($publication['chemin_image']): ?>
+                        <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image de la publication" style="width: 100px; height: auto;">
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <script>
+            // Fonction pour afficher/cacher le formulaire de publication
+            document.getElementById('btnAjouterPost').onclick = function() {
+                togglePopup();
+            };
+
+            function togglePopup() {
+                var popup = document.getElementById('popupForm');
+                popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+            }
+        </script>
+
+
     <?php else: ?>
         <p>Profil non trouvé.</p>
     <?php endif; ?>
