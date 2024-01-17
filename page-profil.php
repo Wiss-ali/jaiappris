@@ -196,5 +196,8 @@ $mysqli->close();
     <?php else: ?>
         <p>Profil non trouvé.</p>
     <?php endif; ?>
+
+    <a href="deconnexion.php">Se déconnecter</a>
+    
 </body>
 </html>

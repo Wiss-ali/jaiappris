@@ -7,6 +7,12 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Vérifie si l'utilisateur est connecté, sinon redirige vers la page de connexion
+if (!isset($_SESSION['Users_id'])) {
+    header('Location: page-connexion.php');
+    exit();
+}
+
 // Inclure le fichier de configuration de la base de données
 require_once "config.php";
 
@@ -89,6 +95,8 @@ $mysqli->close();
         </div>
     <?php endforeach; ?>
 </div>
+
+<a href="deconnexion.php">Se déconnecter</a>
 
 </body>
 </html>
