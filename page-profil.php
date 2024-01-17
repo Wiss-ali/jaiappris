@@ -1,37 +1,39 @@
 <?php
+// Démarrage de la session
 session_start();
 
+// Configuration du rapport d'erreurs
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Vérifie si l'utilisateur est connecté, sinon redirige vers la page de connexion
 if (!isset($_SESSION['Users_id'])) {
     header('Location: page-connexion.php');
     exit();
 }
 
-$serveur = "127.0.0.1:3306";
-$nom_utilisateur = "u559440517_wissemdb";
-$mot_de_passe = "Wisshafa69-";
-$nom_base_de_donnees = "u559440517_jaiappris";
+// Inclure le fichier de configuration de la base de données
+require_once "config.php";
 
-$mysqli = new mysqli($serveur, $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);
-
+// Connexion à la base de données
+$mysqli = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 if ($mysqli->connect_error) {
     die("Erreur de connexion à la base de données : " . $mysqli->connect_error);
 }
 
 $user = null;
+$userId = $_SESSION['Users_id']; // Récupération de l'ID de l'utilisateur à partir de la session
 
-// Vérifiez si le formulaire de mise à jour a été soumis
+// Vérifie si le formulaire de mise à jour du profil a été soumis
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Récupérez les données du formulaire
-    $nom = $_POST["nom"];
-    $prenom = $_POST["prenom"];
-    $email = $_POST["email"];
-    $pseudo = $_POST["pseudo"];
+    // Nettoyer et filtrer les données saisies par l'utilisateur
+    $nom = filter_input(INPUT_POST, "nom", FILTER_SANITIZE_STRING);
+    $prenom = filter_input(INPUT_POST, "prenom", FILTER_SANITIZE_STRING);
+    $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
+    $pseudo = filter_input(INPUT_POST, "pseudo", FILTER_SANITIZE_STRING);
     
-    // Mettez à jour les informations de l'utilisateur dans la base de données
+    // Préparation de la requête pour mettre à jour le profil de l'utilisateur
     $stmt = $mysqli->prepare("UPDATE Users SET nom = ?, prenom = ?, email = ?, pseudo = ? WHERE id = ?");
     $stmt->bind_param("ssssi", $nom, $prenom, $email, $pseudo, $userId);
     $stmt->execute();
@@ -45,10 +47,12 @@ $stmt->bind_param("i", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 
+// Récupération des informations de l'utilisateur si disponibles
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 }
 
+// Fermeture de la requête préparée et de la connexion à la base de données
 $stmt->close();
 $mysqli->close();
 ?>
