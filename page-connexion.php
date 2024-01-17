@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (password_verify($password, $hashed_password)) {
         $_SESSION["pseudo"] = $username;
-        header("Location: google.fr");
+        header("Location: https://www.flaticon.com/free-icon/bin_9790368");
         exit();
     } else {
         echo "Échec de la vérification du mot de passe.<br>";
