@@ -28,10 +28,10 @@ $userId = $_SESSION['Users_id']; // Récupération de l'ID de l'utilisateur à p
 // Vérifie si le formulaire de mise à jour du profil a été soumis
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Nettoyer et filtrer les données saisies par l'utilisateur
-    $nom = filter_input(INPUT_POST, "nom", FILTER_SANITIZE_STRING);
-    $prenom = filter_input(INPUT_POST, "prenom", FILTER_SANITIZE_STRING);
+    $nom = filter_input(INPUT_POST, "nom", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $prenom = filter_input(INPUT_POST, "prenom", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
-    $pseudo = filter_input(INPUT_POST, "pseudo", FILTER_SANITIZE_STRING);
+    $pseudo = filter_input(INPUT_POST, "pseudo", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     
     // Préparation de la requête pour mettre à jour le profil de l'utilisateur
     $stmt = $mysqli->prepare("UPDATE Users SET nom = ?, prenom = ?, email = ?, pseudo = ? WHERE id = ?");
@@ -60,18 +60,10 @@ $stmtPublications->bind_param("i", $userId);
 $stmtPublications->execute();
 $resultPublications = $stmtPublications->get_result();
 while ($publication = $resultPublications->fetch_assoc()) {
-    $publications[] = $publication;
-}
-$stmtPublications->close();
-
-
-foreach ($publications as &$publication) {
-    $postId = $publication['id'];
-
     // Récupération du nombre de likes pour le post
     $queryLikes = "SELECT COUNT(*) as likesCount FROM Likes WHERE id_publication = ?";
     $stmtLikes = $mysqli->prepare($queryLikes);
-    $stmtLikes->bind_param("i", $postId);
+    $stmtLikes->bind_param("i", $publication['id']);
     $stmtLikes->execute();
     $resultLikes = $stmtLikes->get_result();
     $likes = $resultLikes->fetch_assoc();
@@ -82,19 +74,18 @@ foreach ($publications as &$publication) {
     $publication['commentaires'] = [];
     $queryCommentaires = "SELECT Commentaires.*, Users.pseudo FROM Commentaires LEFT JOIN Users ON Commentaires.id_Users = Users.id WHERE id_publication = ? ORDER BY date_commentaire DESC";
     $stmtCommentaires = $mysqli->prepare($queryCommentaires);
-    $stmtCommentaires->bind_param("i", $postId);
+    $stmtCommentaires->bind_param("i", $publication['id']);
     $stmtCommentaires->execute();
     $resultCommentaires = $stmtCommentaires->get_result();
     while ($commentaire = $resultCommentaires->fetch_assoc()) {
         $publication['commentaires'][] = $commentaire;
     }
     $stmtCommentaires->close();
+
+    $publications[] = $publication; // Ajoute la publication enrichie avec les likes et les commentaires au tableau
 }
+$stmtPublications->close();
 
-
-
-// Fermeture de la requête préparée et de la connexion à la base de données
-$stmt->close();
 $mysqli->close();
 ?>
 
@@ -192,12 +183,12 @@ $mysqli->close();
             }
         </script>
 
+        <a href="deconnexion.php">Se déconnecter</a>
 
     <?php else: ?>
         <p>Profil non trouvé.</p>
     <?php endif; ?>
 
-    <a href="deconnexion.php">Se déconnecter</a>
-    
+
 </body>
 </html>
