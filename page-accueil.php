@@ -64,7 +64,7 @@ $mysqli->close();
     <?php foreach ($posts as $publication): ?>
         <div class="publication">
             <!-- Lien vers le profil de l'utilisateur -->
-            <p>Posté par: <a href="profil.php?user_id=<?php echo $publication['user_id']; ?>">
+            <p>Posté par: <a href="page-profil.php?user_id=<?php echo $publication['user_id']; ?>">
                 <?php echo htmlspecialchars($publication['pseudo']); ?>
             </a></p>
             <p>Date: <?php echo htmlspecialchars($publication['date_publication']); ?></p>
