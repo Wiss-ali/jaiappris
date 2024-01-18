@@ -2,6 +2,8 @@
 session_start();
 require_once "config.php";
 
+header('Content-Type: application/json'); // Définir le type de contenu de la réponse comme JSON
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Nettoyer et valider les données reçues
     $id_publication = filter_input(INPUT_POST, 'id_publication', FILTER_SANITIZE_NUMBER_INT);
@@ -11,7 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Connexion à la base de données
         $mysqli = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
         if ($mysqli->connect_error) {
-            die("Erreur de connexion à la base de données : " . $mysqli->connect_error);
+            // En cas d'erreur de connexion, envoyez la réponse appropriée
+            echo json_encode(['error' => 'Erreur de connexion à la base de données']);
+            exit();
         }
 
         // Démarrez la transaction
@@ -44,26 +48,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Validez la transaction
             $mysqli->commit();
+
+            // Calcul du nouveau nombre de likes pour la publication
+            $queryCountLikes = "SELECT COUNT(*) as likesCount FROM Likes WHERE id_publication = ?";
+            $stmtCountLikes = $mysqli->prepare($queryCountLikes);
+            $stmtCountLikes->bind_param("i", $id_publication);
+            $stmtCountLikes->execute();
+            $resultCountLikes = $stmtCountLikes->get_result();
+            $likesData = $resultCountLikes->fetch_assoc();
+            $nouveauNombreDeLikes = $likesData['likesCount'];
+            $stmtCountLikes->close();
+
+            $mysqli->close();
+
+            // Envoi d'une réponse au client avec le nouveau nombre de likes
+            echo json_encode(['newLikeCount' => $nouveauNombreDeLikes]);
         } catch (mysqli_sql_exception $exception) {
             $mysqli->rollback();
-            // Gérer l'exception ici (log, message à l'utilisateur, etc.)
+            echo json_encode(['error' => 'Une erreur s\'est produite lors de la mise à jour des likes.']);
         }
-
-        $mysqli->close();
     } else {
         // Gérer le cas où les données nécessaires ne sont pas fournies ou ne sont pas valides
-        echo "Données requises manquantes ou invalides.";
+        echo json_encode(['error' => 'Données requises manquantes ou invalides.']);
     }
-
-    // Redirigez l'utilisateur vers la page précédente
-    header("Location: " . $_SERVER['HTTP_REFERER']);
 } else {
     // Gérer le cas où la méthode de requête n'est pas POST
     http_response_code(405); // Méthode non autorisée
+    echo json_encode(['error' => 'Method Not Allowed']);
 }
-
-// Envoi d'une réponse au client
-echo json_encode(['newLikeCount' => $nouveauNombreDeLikes]);
-
-exit();
 ?>
