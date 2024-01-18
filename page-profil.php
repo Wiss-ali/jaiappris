@@ -198,6 +198,7 @@ $mysqli->close();
                data: form.serialize(),
                success: function(data)
                {
+                   console.log("Réponse reçue : ", data);
                    // Mise à jour du compteur de likes
                    var responseData = JSON.parse(data); // Convertir la réponse JSON en objet JavaScript
                    var newLikeCount = responseData.newLikeCount; // Supposons que le serveur retourne le nouveau nombre de likes
