@@ -70,10 +70,11 @@ $mysqli->close();
             <?php endif; ?>
             
             <!-- Section pour les likes -->
-            <p>Likes: <?php echo htmlspecialchars($publication['likes']); ?></p>
-            
-            <!-- Bouton pour liker la publication (doit être intégré avec votre logique de traitement) -->
-            <form method="post" action="traiter-like.php">
+            <p>Likes: <span class="like-count" data-publication-id="<?php echo $publication['id']; ?>">
+                <?php echo $publication['likes']; ?></span></p>
+    
+            <!-- Bouton pour liker la publication -->
+            <form method="post" action="traiter-like.php" class="like-form" data-publication-id="<?php echo $publication['id']; ?>">
                 <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
                 <button type="submit" name="like">Like</button>
             </form>
@@ -94,7 +95,37 @@ $mysqli->close();
             </form>
         </div>
     <?php endforeach; ?>
-</div>
+    </div>
+
+    <script>
+                // Ajout du script AJAX pour le traitement des likes
+            $(document).ready(function() {
+                $('.like-form').submit(function(e) {
+                 e.preventDefault();
+
+                 var form = $(this);
+                 var publicationId = form.data('publication-id');  // Récupère l'ID de la publication
+                 var url = form.attr('action');
+
+                 $.ajax({
+                     type: "POST",
+                     url: url,
+                     data: form.serialize(),
+                     success: function(data) {
+                        console.log("Réponse reçue : ", data);
+                        var newLikeCount = data.newLikeCount;
+            
+                        // Ciblez le compteur de likes pour cette publication spécifique
+                        $('.like-count[data-publication-id="' + publicationId + '"]').text(newLikeCount);
+            
+                        // Vous pouvez également changer l'apparence du bouton like
+                        form.find('[name="like"]').toggleClass('liked');
+                }
+            });
+        });
+    });
+        </script>
+
 
 <a href="deconnexion.php">Se déconnecter</a>
 
