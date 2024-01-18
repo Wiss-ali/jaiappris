@@ -177,42 +177,51 @@ $mysqli->close();
         </div>
 
         <script>
-            // Fonction pour afficher/cacher le formulaire de publication
-            document.getElementById('btnAjouterPost').onclick = function() {
-                togglePopup();
-            };
-
-            function togglePopup() {
-                var popup = document.getElementById('popupForm');
-                popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
-            }
-
-            // Ajout du script AJAX pour le traitement des likes
             $(document).ready(function() {
-                $('.like-form').submit(function(e) {
-                    e.preventDefault();
+    // Fonction pour afficher/cacher le formulaire de publication
+    function togglePopup() {
+        var popup = document.getElementById('popupForm');
+        popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+    }
 
-                    var form = $(this);
-                    var publicationId = form.data('publication-id');  // Récupère l'ID de la publication
-                    var url = form.attr('action');
+    // Attacher l'événement onclick au bouton pour afficher/cacher le formulaire de publication
+    $('#btnAjouterPost').click(function() {
+        togglePopup();
+    });
 
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        data: form.serialize(),
-                        success: function(data) {
-                            console.log("Réponse reçue : ", data);
-                            var newLikeCount = data.newLikeCount;
-            
-                            // Ciblez le compteur de likes pour cette publication spécifique
-                            $('.like-count[data-publication-id="' + publicationId + '"]').text(newLikeCount);
-            
-                            // Vous pouvez également changer l'apparence du bouton like
-                            form.find('[name="like"]').toggleClass('liked');
-                        }
-                    });
-                });
-            });
+    // Écouteur d'événements pour le formulaire de like
+    $(document).on('submit', '.like-form', function(e) {
+        e.preventDefault(); // Empêcher la soumission traditionnelle du formulaire
+
+        var form = $(this);
+        var publicationId = form.data('publication-id');  // Récupère l'ID de la publication
+        var url = form.attr('action');
+
+        // Faire une requête AJAX pour traiter le like
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(), // Sérialiser les données du formulaire
+            success: function(response) {
+                console.log("Réponse reçue : ", response);
+                if (response.newLikeCount !== undefined) {
+                    // Mettre à jour le compteur de likes pour cette publication spécifique
+                    $('.like-count[data-publication-id="' + publicationId + '"]').text(response.newLikeCount);
+        
+                    // Vous pouvez également changer l'apparence du bouton like
+                    form.find('[name="like"]').toggleClass('liked');
+                } else if (response.error) {
+                    console.error("Erreur : ", response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Erreur AJAX : ", error);
+            }
+        });
+    });
+
+    // Ajout des autres scripts si nécessaire...
+});
         </script>
         <a href="deconnexion.php">Se déconnecter</a>
     <?php else: ?>
