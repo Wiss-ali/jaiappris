@@ -98,7 +98,6 @@ $mysqli->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil de l'Utilisateur</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="reglagemenu.css"> 
 </head>
 <body>
     <h1>Profil de l'Utilisateur</h1>
@@ -113,7 +112,7 @@ $mysqli->close();
                 <input type="text" id="prenom" name="prenom" value="<?php echo htmlspecialchars($user['prenom']); ?>" required><br>
                 
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" autocomplete="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br>
+                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br>
                 
                 <label for="pseudo">Pseudo:</label>
                 <input type="text" id="pseudo" name="pseudo" value="<?php echo htmlspecialchars($user['pseudo']); ?>" required><br>
@@ -140,23 +139,12 @@ $mysqli->close();
         <h2>Publications</h2>
         <div id="publications">
             <?php foreach ($publications as $publication): ?>
-                <div class="publication" data-publication-id="<?php echo $publication['id']; ?>">
+                <div class="publication">
                     <p>Posté par: <?php echo htmlspecialchars($publication['pseudo']); ?></p>
                     <p>Date: <?php echo htmlspecialchars($publication['date_publication']); ?></p>
                     <p><?php echo nl2br(htmlspecialchars($publication['contenu'])); ?></p>
                     <?php if ($publication['chemin_image']): ?>
                         <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image du post" style="width: 100px; height: auto;">
-                    <?php endif; ?>
-
-                    <?php if ($publication['id_Users'] == $_SESSION['Users_id']): ?>
-                    <!-- Logo de réglage et menu déroulant pour les publications de l'utilisateur -->
-                    <div class="settings-menu">
-                         <img src="setting.png" class="settings-icon">
-                       <div class="settings-dropdown" style="display:none;">
-                         <a href="modif-publication.php?id=<?php echo $publication['id']; ?>">Modifier</a>
-                         <a href="#" class="delete-post" data-publication-id="<?php echo $publication['id']; ?>">Supprimer</a>
-                      </div>
-                    </div>
                     <?php endif; ?>
             
                     <!-- Section pour les likes -->
@@ -190,84 +178,54 @@ $mysqli->close();
 
         <script>
             $(document).ready(function() {
-        // Fonction pour afficher/cacher le formulaire de publication
-        function togglePopup() {
-            var popup = document.getElementById('popupForm');
-            popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
-        }
+    // Fonction pour afficher/cacher le formulaire de publication
+    function togglePopup() {
+        var popup = document.getElementById('popupForm');
+        popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+    }
 
-        // Attacher l'événement onclick au bouton pour afficher/cacher le formulaire de publication
-        $('#btnAjouterPost').click(function() {
-            togglePopup();
-        });
+    // Attacher l'événement onclick au bouton pour afficher/cacher le formulaire de publication
+    $('#btnAjouterPost').click(function() {
+        togglePopup();
+    });
 
-        // Écouteur d'événements pour le formulaire de like
-        $(document).on('submit', '.like-form', function(e) {
-            e.preventDefault(); // Empêcher la soumission traditionnelle du formulaire
+    // Écouteur d'événements pour le formulaire de like
+    $(document).on('submit', '.like-form', function(e) {
+        e.preventDefault(); // Empêcher la soumission traditionnelle du formulaire
 
-            var form = $(this);
-            var publicationId = form.data('publication-id');  // Récupère l'ID de la publication
-            var url = form.attr('action');
+        var form = $(this);
+        var publicationId = form.data('publication-id');  // Récupère l'ID de la publication
+        var url = form.attr('action');
 
-            // Faire une requête AJAX pour traiter le like
-            $.ajax({
-                type: "POST",
-                url: url,
-                data: form.serialize(), // Sérialiser les données du formulaire
-                success: function(response) {
-                    console.log("Réponse reçue : ", response);
-                    if (response.newLikeCount !== undefined) {
-                        // Mettre à jour le compteur de likes pour cette publication spécifique
-                        $('.like-count[data-publication-id="' + publicationId + '"]').text(response.newLikeCount);
+        // Faire une requête AJAX pour traiter le like
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(), // Sérialiser les données du formulaire
+            success: function(response) {
+                console.log("Réponse reçue : ", response);
+                if (response.newLikeCount !== undefined) {
+                    // Mettre à jour le compteur de likes pour cette publication spécifique
+                    $('.like-count[data-publication-id="' + publicationId + '"]').text(response.newLikeCount);
         
-                        // Vous pouvez également changer l'apparence du bouton like
-                        form.find('[name="like"]').toggleClass('liked');
-                    } else if (response.error) {
-                        console.error("Erreur : ", response.error);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error("Erreur AJAX : ", error);
+                    // Vous pouvez également changer l'apparence du bouton like
+                    form.find('[name="like"]').toggleClass('liked');
+                } else if (response.error) {
+                    console.error("Erreur : ", response.error);
                 }
-            });
+            },
+            error: function(xhr, status, error) {
+                console.error("Erreur AJAX : ", error);
+            }
         });
-
-        // Ajout des autres scripts si nécessaire...
-    });
-        </script>
-        <script>
-        $(document).ready(function() {
-          $('.settings-icon').click(function() {
-           $(this).next('.settings-dropdown').toggle();
-        });
-
-    $('.delete-post').click(function(e) {
-        e.preventDefault();
-        var publicationId = $(this).data('publication-id');
-        if (confirm('Êtes-vous sûr de vouloir supprimer cette publication ?')) {
-            $.ajax({
-                url: 'sup-publication.php',
-                type: 'POST',
-                data: { id: publicationId },
-                success: function(response) {
-                    $('.publication[data-publication-id="' + publicationId + '"]').remove();
-                }
-            });
-        }
     });
 
-    $(window).click(function(e) {
-        if (!$(e.target).hasClass('settings-icon') && !$(e.target).parents('.settings-menu').length) {
-            $('.settings-dropdown').hide();
-        }
-    });
+    // Ajout des autres scripts si nécessaire...
 });
         </script>
-
         <a href="deconnexion.php">Se déconnecter</a>
     <?php else: ?>
         <p>Profil non trouvé.</p>
     <?php endif; ?>
 </body>
 </html>
-
