@@ -146,14 +146,15 @@ $mysqli->close();
                         <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image du post" style="width: 100px; height: auto;">
                     <?php endif; ?>
             
-                    <!-- Section pour les likes -->
-                    <p>Likes: <span class="like-count"><?php echo $publication['likes']; ?></span></p>
-            
-                    <!-- Bouton pour liker la publication (doit être intégré avec votre logique de traitement) -->
-                    <form method="post" action="traiter-like.php" class="like-form">
-                        <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
-                        <button type="submit" name="like">Like</button>
-                    </form>
+                        <!-- Section pour les likes -->
+                           <p>Likes: <span class="like-count" data-publication-id="<?php echo $publication['id']; ?>">
+                            <?php echo $publication['likes']; ?></span></p>
+    
+                        <!-- Bouton pour liker la publication -->
+                        <form method="post" action="traiter-like.php" class="like-form" data-publication-id="<?php echo $publication['id']; ?>">
+                           <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
+                           <button type="submit" name="like">Like</button>
+                        </form>
 
                     <!-- Section pour les commentaires -->
                     <h3>Commentaires:</h3>
@@ -186,25 +187,26 @@ $mysqli->close();
 
                 // Ajout du script AJAX pour le traitement des likes
             $(document).ready(function() {
-            $('.like-form').submit(function(e) {
-            e.preventDefault();
+                $('.like-form').submit(function(e) {
+                 e.preventDefault();
 
-            var form = $(this);
-            var url = form.attr('action');
+                 var form = $(this);
+                 var publicationId = form.data('publication-id');  // Récupère l'ID de la publication
+                 var url = form.attr('action');
 
-            $.ajax({
-               type: "POST",
-               url: url,
-               data: form.serialize(),
-               success: function(data) {
-                   console.log("Réponse reçue : ", data); // vous recevez {newLikeCount: 2}
-
-                   var newLikeCount = data.newLikeCount; // accéder directement à la propriété newLikeCount
-                   form.find('.like-count').text(newLikeCount); // mettre à jour le texte du compteur de likes
-
-                   // Vous pouvez également changer l'apparence du bouton like
-                   // par exemple, en ajoutant ou en retirant une classe CSS
-                   form.find('[name="like"]').toggleClass('liked');
+                 $.ajax({
+                     type: "POST",
+                     url: url,
+                     data: form.serialize(),
+                     success: function(data) {
+                        console.log("Réponse reçue : ", data);
+                        var newLikeCount = data.newLikeCount;
+            
+                        // Ciblez le compteur de likes pour cette publication spécifique
+                        $('.like-count[data-publication-id="' + publicationId + '"]').text(newLikeCount);
+            
+                        // Vous pouvez également changer l'apparence du bouton like
+                        form.find('[name="like"]').toggleClass('liked');
                 }
             });
         });
