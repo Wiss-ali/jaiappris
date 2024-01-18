@@ -153,7 +153,7 @@ $mysqli->close();
                     <div class="settings-menu">
                          <img src="setting.png" class="settings-icon">
                        <div class="settings-dropdown" style="display:none;">
-                         <a href="modifier.php?id=<?php echo $publication['id']; ?>">Modifier</a>
+                         <a href="modif-publication.php?id=<?php echo $publication['id']; ?>">Modifier</a>
                          <a href="#" class="delete-post" data-publication-id="<?php echo $publication['id']; ?>">Supprimer</a>
                       </div>
                     </div>
@@ -246,7 +246,7 @@ $mysqli->close();
         var publicationId = $(this).data('publication-id');
         if (confirm('Êtes-vous sûr de vouloir supprimer cette publication ?')) {
             $.ajax({
-                url: 'supprimer-publication.php',
+                url: 'sup-publication.php',
                 type: 'POST',
                 data: { id: publicationId },
                 success: function(response) {
