@@ -23,18 +23,31 @@ if ($mysqli->connect_error) {
 }
 
 $user = null;
-// Récupération de l'ID de l'utilisateur à partir de la session ou de l'URL
-$currentUser = $_SESSION['Users_id'];
-$profileUserId = isset($_GET['user_id']) ? filter_var($_GET['user_id'], FILTER_SANITIZE_NUMBER_INT) : $currentUser;
-$isOwnProfile = ($currentUser == $profileUserId);
+$userId = $_SESSION['Users_id']; // Récupération de l'ID de l'utilisateur à partir de la session
 
-// Récupération des informations de l'utilisateur
+// Vérifie si le formulaire de mise à jour du profil a été soumis
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Nettoyer et filtrer les données saisies par l'utilisateur
+    $nom = filter_input(INPUT_POST, "nom", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $prenom = filter_input(INPUT_POST, "prenom", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $email = filter_input(INPUT_POST, "email", FILTER_SANITIZE_EMAIL);
+    $pseudo = filter_input(INPUT_POST, "pseudo", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    
+    // Préparation de la requête pour mettre à jour le profil de l'utilisateur
+    $stmt = $mysqli->prepare("UPDATE Users SET nom = ?, prenom = ?, email = ?, pseudo = ? WHERE id = ?");
+    $stmt->bind_param("ssssi", $nom, $prenom, $email, $pseudo, $userId);
+    $stmt->execute();
+    $stmt->close();
+}
+
+// Préparation de la requête pour récupérer les informations de l'utilisateur
 $query = "SELECT nom, prenom, email, pseudo FROM Users WHERE id = ?";
 $stmt = $mysqli->prepare($query);
-$stmt->bind_param("i", $profileUserId);
+$stmt->bind_param("i", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 
+// Récupération des informations de l'utilisateur si disponibles
 if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
 }
@@ -83,22 +96,13 @@ $mysqli->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil de l'Utilisateur</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 <body>
     <h1>Profil de l'Utilisateur</h1>
-    
     <?php if ($user): ?>
-        <!-- Affichage des informations du profil -->
-        <p>Nom: <?php echo htmlspecialchars($user['nom']); ?></p>
-        <p>Prénom: <?php echo htmlspecialchars($user['prenom']); ?></p>
-        <p>Email: <?php echo htmlspecialchars($user['email']); ?></p>
-        <p>Pseudo: <?php echo htmlspecialchars($user['pseudo']); ?></p>
-
-        <?php if ($isOwnProfile): ?>
-            <!-- Les éléments qui ne doivent être accessibles que par l'utilisateur lui-même -->
-            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <!-- ... champs du formulaire pour la mise à jour du profil ... -->
-                <label for="nom">Nom:</label>
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <label for="nom">Nom:</label>
             <input type="text" id="nom" name="nom" value="<?php echo htmlspecialchars($user['nom']); ?>" required><br>
             
             <label for="prenom">Prénom:</label>
@@ -111,28 +115,25 @@ $mysqli->close();
             <input type="text" id="pseudo" name="pseudo" value="<?php echo htmlspecialchars($user['pseudo']); ?>" required><br>
             
             <button type="submit">Mettre à jour le profil</button>
-            </form>
+        </form>
 
-            <button id="btnAjouterPost">Ajouter un nouveau post</button>
-
-                    <!-- Bouton pour afficher le formulaire de publication -->
+        <!-- Bouton pour afficher le formulaire de publication -->
         <button id="btnAjouterPost">Ajouter un nouveau post</button>
 
-                    <!-- Popup formulaire pour ajouter un nouveau post -->
-            <div id="popupForm" style="display:none;">
+          <!-- Popup formulaire pour ajouter un nouveau post -->
+        <div id="popupForm" style="display:none;">
 
-                <h2>Ajouter un nouveau post</h2>
+            <h2>Ajouter un nouveau post</h2>
 
-                <form method="post" action="traiter-publication.php" enctype="multipart/form-data">
-                   <textarea name="contenu" placeholder="Votre post ici..." required></textarea><br>
-                   <input type="file" name="image" accept="image/*"><br>
-                   <button type="button" onclick="togglePopup()">Annuler</button>
-                   <button type="submit" name="submit">Ajouter</button>
-                </form>
-            </div>
-        <?php endif; ?>
+            <form method="post" action="traiter-publication.php" enctype="multipart/form-data">
+                <textarea name="contenu" placeholder="Votre post ici..." required></textarea><br>
+                <input type="file" name="image" accept="image/*"><br>
+                <button type="button" onclick="togglePopup()">Annuler</button>
+                <button type="submit" name="submit">Ajouter</button>
+            </form>
+        </div>
 
-        <!-- ... Affichage des publications de l'utilisateur ... -->
+            <!-- Affichage des publications de l'utilisateur -->
         <h2>publications</h2>
         
         <div id="publications">
@@ -218,7 +219,7 @@ $mysqli->close();
         <p>Profil non trouvé.</p>
     <?php endif; ?>
 
-    <!-- ... Le reste de votre page ... -->
 
 </body>
 </html>
+
