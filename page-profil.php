@@ -196,18 +196,16 @@ $mysqli->close();
                type: "POST",
                url: url,
                data: form.serialize(),
-               success: function(data)
-               {
-                   console.log("Réponse reçue : ", data);
-                   // Mise à jour du compteur de likes
-                   var responseData = JSON.parse(data); // Convertir la réponse JSON en objet JavaScript
-                   var newLikeCount = responseData.newLikeCount; // Supposons que le serveur retourne le nouveau nombre de likes
-                   form.find('.like-count').text(newLikeCount); // Mettre à jour le texte du compteur de likes
+               success: function(data) {
+                   console.log("Réponse reçue : ", data); // vous recevez {newLikeCount: 2}
+
+                   var newLikeCount = data.newLikeCount; // accéder directement à la propriété newLikeCount
+                   form.find('.like-count').text(newLikeCount); // mettre à jour le texte du compteur de likes
 
                    // Vous pouvez également changer l'apparence du bouton like
                    // par exemple, en ajoutant ou en retirant une classe CSS
                    form.find('[name="like"]').toggleClass('liked');
-               }
+                }
             });
         });
     });
