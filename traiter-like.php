@@ -61,5 +61,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Gérer le cas où la méthode de requête n'est pas POST
     http_response_code(405); // Méthode non autorisée
 }
+
+// Envoi d'une réponse au client
+echo json_encode(['newLikeCount' => $nouveauNombreDeLikes]);
+
 exit();
 ?>

@@ -95,6 +95,8 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil de l'Utilisateur</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 <body>
     <h1>Profil de l'Utilisateur</h1>
@@ -145,10 +147,10 @@ $mysqli->close();
                     <?php endif; ?>
             
                     <!-- Section pour les likes -->
-                    <p>Likes: <?php echo htmlspecialchars($publication['likes']); ?></p>
+                    <p>Likes: <span class="like-count"><?php echo $publication['likes']; ?></span></p>
             
                     <!-- Bouton pour liker la publication (doit être intégré avec votre logique de traitement) -->
-                    <form method="post" action="traiter-like.php">
+                    <form method="post" action="traiter-like.php" class="like-form">
                         <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
                         <button type="submit" name="like">Like</button>
                     </form>
@@ -181,6 +183,33 @@ $mysqli->close();
                 var popup = document.getElementById('popupForm');
                 popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
             }
+
+                // Ajout du script AJAX pour le traitement des likes
+            $(document).ready(function() {
+            $('.like-form').submit(function(e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var url = form.attr('action');
+
+            $.ajax({
+               type: "POST",
+               url: url,
+               data: form.serialize(),
+               success: function(data)
+               {
+                   // Mise à jour du compteur de likes
+                   var responseData = JSON.parse(data); // Convertir la réponse JSON en objet JavaScript
+                   var newLikeCount = responseData.newLikeCount; // Supposons que le serveur retourne le nouveau nombre de likes
+                   form.find('.like-count').text(newLikeCount); // Mettre à jour le texte du compteur de likes
+
+                   // Vous pouvez également changer l'apparence du bouton like
+                   // par exemple, en ajoutant ou en retirant une classe CSS
+                   form.find('[name="like"]').toggleClass('liked');
+               }
+            });
+        });
+    });
         </script>
 
         <a href="deconnexion.php">Se déconnecter</a>
@@ -192,3 +221,4 @@ $mysqli->close();
 
 </body>
 </html>
+
