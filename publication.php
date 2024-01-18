@@ -23,20 +23,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Gestion de l'upload de l'image
     $chemin_image = null;
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        // Vérification de la taille et du type du fichier
-        if ($_FILES['image']['size'] <= 5000000 && in_array($_FILES['image']['type'], ['image/jpeg', 'image/png', 'image/gif'])) {
-            $folder = "uploads/"; // Assurez-vous que ce dossier existe et est accessible en écriture
-            $fileName = uniqid() . "-" . basename($_FILES['image']['name']); // Sécurisation du nom de fichier
-            $file = $folder . $fileName;
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $file)) {
-                $chemin_image = $file;
-            } else {
-                echo "Erreur de chargement de l'image.";
-                exit; // Arrêter le script en cas d'erreur d'upload
-            }
+        $folder = "uploads/"; // Assurez-vous que ce dossier existe et est accessible en écriture
+        $file = $folder . basename($_FILES['image']['name']);
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $file)) {
+            $chemin_image = $file;
         } else {
-            echo "Fichier non valide ou trop grand.";
-            exit; // Arrêter le script en cas de fichier non valide
+            echo "Erreur de chargement de l'image.";
         }
     }
 
@@ -57,3 +49,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit();
 }
 ?>
+
