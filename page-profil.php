@@ -113,10 +113,8 @@ $mysqli->close();
             <button type="submit">Mettre à jour le profil</button>
             </form>
 
-            <button id="btnAjouterPost">Ajouter un nouveau post</button>
-
                     <!-- Bouton pour afficher le formulaire de publication -->
-        <button id="btnAjouterPost">Ajouter un nouveau post</button>
+            <button id="btnAjouterPost">Ajouter un nouveau post</button>
 
                     <!-- Popup formulaire pour ajouter un nouveau post -->
             <div id="popupForm" style="display:none;">
