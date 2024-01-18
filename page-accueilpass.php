@@ -24,7 +24,7 @@ if ($mysqli->connect_error) {
 
 // Récupération de tous les posts
 $posts = [];
-$queryPosts = "SELECT Publications.*, Users.pseudo, Users.id as user_id FROM Publications LEFT JOIN Users ON Publications.id_Users = Users.id ORDER BY Publications.date_publication DESC";
+$queryPosts = "SELECT Publications.*, Users.pseudo FROM Publications LEFT JOIN Users ON Publications.id_Users = Users.id ORDER BY Publications.date_publication DESC";
 $resultPosts = $mysqli->query($queryPosts);
 while ($post = $resultPosts->fetch_assoc()) {
     // Pour chaque post, récupérez les likes et les commentaires
@@ -63,10 +63,7 @@ $mysqli->close();
     <div id="publications">
     <?php foreach ($posts as $publication): ?>
         <div class="publication">
-            <!-- Lien vers le profil de l'utilisateur -->
-            <p>Posté par: <a href="profil.php?user_id=<?php echo $publication['user_id']; ?>">
-                <?php echo htmlspecialchars($publication['pseudo']); ?>
-            </a></p>
+            <p>Posté par: <?php echo htmlspecialchars($publication['pseudo']); ?></p>
             <p>Date: <?php echo htmlspecialchars($publication['date_publication']); ?></p>
             <p><?php echo nl2br(htmlspecialchars($publication['contenu'])); ?></p>
             <?php if ($publication['chemin_image']): ?>
@@ -131,7 +128,7 @@ $mysqli->close();
         </script>
 
 
-    <a href="deconnexion.php">Se déconnecter</a>
+<a href="deconnexion.php">Se déconnecter</a>
 
 </body>
 </html>
