@@ -5,7 +5,7 @@ require_once "config.php";
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['Users_id'])) {
     // Nettoyer et valider les données reçues
     $id_publication = filter_input(INPUT_POST, 'id_publication', FILTER_SANITIZE_NUMBER_INT);
-    $contenu = filter_input(INPUT_POST, 'contenu', FILTER_SANITIZE_STRING);
+    $contenu = filter_input(INPUT_POST, "contenu", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $id_Users = $_SESSION['Users_id'];
 
     if ($id_publication && $contenu) {
