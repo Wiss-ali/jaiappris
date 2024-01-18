@@ -113,7 +113,7 @@ $mysqli->close();
                 <input type="text" id="prenom" name="prenom" value="<?php echo htmlspecialchars($user['prenom']); ?>" required><br>
                 
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br>
+                <input type="email" id="email" name="email" autocomplete="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br>
                 
                 <label for="pseudo">Pseudo:</label>
                 <input type="text" id="pseudo" name="pseudo" value="<?php echo htmlspecialchars($user['pseudo']); ?>" required><br>
