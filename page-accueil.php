@@ -64,6 +64,7 @@ $mysqli->close();
     <div class="header">
         <!-- Contenu de l'en-tête ici -->
         <a href="page-profil.php" style="color: white; margin-left: 20px;">Profil</a>
+        <a href="deconnexion.php">Se déconnecter</a>
     </div>
 
     <div class="sidebar left">
@@ -150,7 +151,7 @@ $mysqli->close();
         </script>
 
 
-    <a href="deconnexion.php">Se déconnecter</a>
+    
 
 </body>
 </html>

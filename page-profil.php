@@ -104,6 +104,7 @@ $mysqli->close();
     <div class="header">
         <!-- Contenu de l'en-tête ici, comme le titre, le menu, etc. -->
         <a href="page-accueil.php" style="color: white; margin-left: 20px;">Page d'accueil</a>
+        <a href="deconnexion.php">Se déconnecter</a>
     </div>
 
     <div class="sidebar left">
@@ -282,7 +283,6 @@ $mysqli->close();
 });
         </script>
 
-        <a href="deconnexion.php">Se déconnecter</a>
     <?php else: ?>
         <p>Profil non trouvé.</p>
     <?php endif; ?>
