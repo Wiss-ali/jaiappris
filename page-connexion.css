@@ -1,4 +1,4 @@
-.form-container {
+/*.form-container {
     width: 400px;
     background: linear-gradient(#212121, #212121) padding-box,
                 linear-gradient(145deg, transparent 35%,#e81cff, #40c9ff) border-box;
@@ -114,6 +114,82 @@
     border-color: #fff;
   }
   
+
+  /* Réinitialisation de quelques styles par défaut pour une cohérence entre les navigateurs */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f7f7f7; /* Couleur de fond légère */
+    display: flex;
+    align-items: center; /* Centrer verticalement */
+    justify-content: center; /* Centrer horizontalement */
+    min-height: 100vh; /* Hauteur minimale pour remplir l'écran */
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-container {
+    background-color: #ffffff; /* Arrière-plan blanc pour le formulaire */
+    border-radius: 8px; /* Bordures arrondies */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre légère */
+    padding: 40px;
+    width: 100%;
+    max-width: 400px; /* Largeur maximale pour le formulaire */
+}
+
+.form-group {
+    margin-bottom: 15px; /* Espace entre les champs du formulaire */
+}
+
+label {
+    display: block;
+    margin-bottom: 5px; /* Espace entre le label et l'input */
+}
+
+input[type="text"],
+input[type="password"] {
+    width: calc(100% - 20px); /* 100% de la largeur - padding */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd; /* Bordure légère */
+    border-radius: 5px; /* Bordures arrondies */
+}
+
+.form-submit-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #0056b3; /* Couleur de fond pour le bouton */
+    color: white; /* Texte blanc */
+    border: none; /* Pas de bordure */
+    border-radius: 5px; /* Bordures arrondies */
+    cursor: pointer; /* Curseur en forme de main */
+}
+
+.form-submit-btn:hover {
+    background-color: #003d82; /* Couleur de fond plus foncée au survol */
+}
+
+a {
+    color: #0056b3; /* Couleur pour le lien */
+    text-decoration: none; /* Pas de soulignement */
+}
+
+a:hover {
+    text-decoration: underline; /* Soulignement au survol */
+}
+
+p {
+    text-align: center; /* Centrer le paragraphe */
+}
+
   
   
   
