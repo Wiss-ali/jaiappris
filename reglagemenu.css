@@ -20,3 +20,87 @@
 
 .settings-dropdown a:hover {background-color: #f1f1f1}
 
+
+/* Réinitialisation de quelques styles par défaut pour une cohérence entre les navigateurs */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+/* Style pour l'en-tête */
+.header {
+    width: 100%;
+    height: 70px;
+    background-color: #333;
+    color: white;
+    position: fixed;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Style pour le contenu principal */
+.content {
+    margin-top: 70px; /* Même hauteur que l'en-tête pour ne pas être caché derrière */
+    width: 60%;
+    margin-left: 20%; /* Espace pour la section de gauche */
+    height: 100%;
+    overflow-y: auto; /* Permettre le défilement */
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+/* Style pour les sections latérales */
+.sidebar {
+    position: fixed;
+    width: 20%;
+    height: 100%;
+    top: 70px; /* Même hauteur que l'en-tête */
+    bottom: 0;
+    background-color: #ddd;
+    overflow-y: auto; /* Permettre le défilement si nécessaire */
+    padding: 20px;
+}
+
+/* Style spécifique pour la barre latérale gauche */
+.sidebar.left {
+    left: 0;
+}
+
+/* Style spécifique pour la barre latérale droite */
+.sidebar.right {
+    right: 0;
+}
+
+/* Style pour les publications */
+.publication {
+    background-color: white;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajout de quelques styles pour les boutons, formulaires, etc., si nécessaire */
+button {
+    cursor: pointer;
+}
+
+input, textarea {
+    width: calc(100% - 22px); /* 100% width - padding */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+

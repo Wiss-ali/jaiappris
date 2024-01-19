@@ -101,6 +101,17 @@ $mysqli->close();
     <link rel="stylesheet" href="reglagemenu.css"> 
 </head>
 <body>
+    <div class="header">
+        <!-- Contenu de l'en-tête ici, comme le titre, le menu, etc. -->
+        <h1>a remplir</h1>
+    </div>
+
+    <div class="sidebar left">
+        <!-- Contenu de la sidebar gauche -->
+        <p>Menu gauche</p>
+    </div>
+
+ <div class="content">
     <h1>Profil de l'Utilisateur</h1>
     <?php if ($user): ?>
         <!-- Affichage et modification des informations du profil -->
@@ -187,6 +198,13 @@ $mysqli->close();
                 </div>
             <?php endforeach; ?>
         </div>
+</div>
+
+        <div class="sidebar right">
+        <!-- Contenu de la sidebar droite -->
+             <p>Menu droite</p>
+        </div>
+
 
         <script>
             $(document).ready(function() {
