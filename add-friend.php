@@ -12,7 +12,7 @@ $friendUserId = isset($input['userId']) ? intval($input['userId']) : null;
 $currentUser = $_SESSION['Users_id'];
 
 if ($friendUserId && $friendUserId != $currentUser) {
-    $stmt = $mysqli->prepare("INSERT INTO Relation (id_Users1, id_Users2, statut) VALUES (?, ?, 'pending')");
+    $stmt = $mysqli->prepare("INSERT INTO Relations (id_Users1, id_Users2, statut) VALUES (?, ?, 'pending')");
     $stmt->bind_param("ii", $currentUser, $friendUserId);
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Demande d\'ami envoyée']);

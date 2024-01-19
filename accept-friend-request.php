@@ -11,7 +11,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 $requestId = isset($input['requestId']) ? intval($input['requestId']) : null;
 
 if ($requestId) {
-    $stmt = $mysqli->prepare("UPDATE Relation SET statut = 'accepted' WHERE id = ?");
+    $stmt = $mysqli->prepare("UPDATE Relations SET statut = 'accepted' WHERE id = ?");
     $stmt->bind_param("i", $requestId);
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Demande acceptée']);

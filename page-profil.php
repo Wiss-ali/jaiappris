@@ -89,7 +89,7 @@ while ($publication = $resultPublications->fetch_assoc()) {
 
 // Ajout pour vérifier le statut de l'amitié
 $isFriend = false;
-$query = "SELECT * FROM Relation WHERE 
+$query = "SELECT * FROM Relations WHERE 
     (id_Users1 = ? AND id_Users2 = ? OR id_Users1 = ? AND id_Users2 = ?) 
     AND statut = 'accepted'";
 $stmt = $mysqli->prepare($query);
@@ -103,7 +103,7 @@ $stmt->close();
 
 //Récupérer les demandes d'amis entrantes
 $friendRequests = [];
-$queryRequests = "SELECT r.id as request_id, r.id_Users1, u.pseudo FROM Relation r 
+$queryRequests = "SELECT r.id as request_id, r.id_Users1, u.pseudo FROM Relations r 
                   JOIN Users u ON u.id = r.id_Users1 
                   WHERE r.id_Users2 = ? AND r.statut = 'pending'";
 $stmtRequests = $mysqli->prepare($queryRequests);

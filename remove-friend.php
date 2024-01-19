@@ -12,7 +12,7 @@ $friendUserId = isset($input['userId']) ? intval($input['userId']) : null;
 $currentUser = $_SESSION['Users_id'];
 
 if ($friendUserId) {
-    $stmt = $mysqli->prepare("DELETE FROM Relation WHERE (id_Users1 = ? AND id_Users2 = ?) OR (id_Users1 = ? AND id_Users2 = ?)");
+    $stmt = $mysqli->prepare("DELETE FROM Relations WHERE (id_Users1 = ? AND id_Users2 = ?) OR (id_Users1 = ? AND id_Users2 = ?)");
     $stmt->bind_param("iiii", $currentUser, $friendUserId, $friendUserId, $currentUser);
     if ($stmt->execute()) {
         echo json_encode(['status' => 'success', 'message' => 'Ami supprimé']);
