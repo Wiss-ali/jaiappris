@@ -102,10 +102,22 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Publication</title>
+    <link rel="stylesheet" href="reglagemenu.css">
 </head>
 <body>
+
+    <div class="header">
+        <!-- Contenu de l'en-tête ici -->
+        <h1>modification</h1>
+    </div>
+
+    <div class="sidebar left">
+        <!-- Contenu de la sidebar gauche -->
+        <p>Menu gauche</p>
+    </div>
+
+<div class="content">
     <h1>Modifier la Publication</h1>
-    
     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) . '?id=' . $publicationId; ?>" enctype="multipart/form-data">
         <label for="contenu">Contenu:</label>
         <textarea name="contenu" required><?php echo htmlspecialchars($publication['contenu']); ?></textarea><br>
@@ -126,5 +138,11 @@ $mysqli->close();
     </form>
 
     <a href="page-profil.php">Retour au profil</a>
+</div>
+    
+    <div class="sidebar right">
+        <!-- Contenu de la sidebar droite -->
+        <p>Menu droite</p>
+    </div>
 </body>
 </html>
