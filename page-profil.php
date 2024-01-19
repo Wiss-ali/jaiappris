@@ -99,7 +99,7 @@ $mysqli->close();
     <title>Profil de l'Utilisateur</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="reglagemenu.css"> 
-    <link rel="stylesheet" href="publication-commentaires"> 
+    <link rel="stylesheet" href="publication-commentaires.css">
 </head>
 <body>
     <div class="header">
@@ -191,8 +191,8 @@ $mysqli->close();
                 </div>
             <?php endforeach; ?>
         </div>
-    <?php endif; ?>
 </div>
+
 
         <div class="sidebar right">
         <!-- Contenu de la sidebar droite -->
