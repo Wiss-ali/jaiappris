@@ -63,7 +63,7 @@ $mysqli->close();
 
     <div class="header">
         <!-- Contenu de l'en-tête ici -->
-        <h1>Posts récents</h1>
+        <a href="page-profil.php" style="color: white; margin-left: 20px;">Profil</a>
     </div>
 
     <div class="sidebar left">

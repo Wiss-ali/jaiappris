@@ -103,7 +103,7 @@ $mysqli->close();
 <body>
     <div class="header">
         <!-- Contenu de l'en-tête ici, comme le titre, le menu, etc. -->
-        <h1>a remplir</h1>
+        <a href="page-accueil.php" style="color: white; margin-left: 20px;">Page d'accueil</a>
     </div>
 
     <div class="sidebar left">
