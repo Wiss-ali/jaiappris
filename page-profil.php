@@ -157,7 +157,8 @@ $mysqli->close();
         <?php endforeach; ?>
     </div>
     
-<div>
+<?php if (!$isOwnProfile): ?>
+    <div>
     <h1>Profil</h1>
     <!-- Logo ami et menu déroulant -->
     <div class="friend-logo-container">
@@ -177,6 +178,8 @@ $mysqli->close();
         </div>
     </div>
 </div>
+<?php endif; ?>
+
 
 
     <?php if ($user): ?>
