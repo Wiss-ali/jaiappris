@@ -99,6 +99,7 @@ $mysqli->close();
     <title>Profil de l'Utilisateur</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="reglagemenu.css"> 
+    <link rel="stylesheet" href="publication-commentaires"> 
 </head>
 <body>
     <div class="header">
@@ -112,93 +113,85 @@ $mysqli->close();
         <p>Menu gauche</p>
     </div>
 
- <div class="content">
+    <div class="content">
     <h1>Profil de l'Utilisateur</h1>
     <?php if ($user): ?>
         <!-- Affichage et modification des informations du profil -->
         <?php if ($isOwnProfile): ?>
-            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <label for="nom">Nom:</label>
-                <input type="text" id="nom" name="nom" value="<?php echo htmlspecialchars($user['nom']); ?>" required><br>
-                
-                <label for="prenom">Prénom:</label>
-                <input type="text" id="prenom" name="prenom" value="<?php echo htmlspecialchars($user['prenom']); ?>" required><br>
-                
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" autocomplete="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br>
-                
-                <label for="pseudo">Pseudo:</label>
-                <input type="text" id="pseudo" name="pseudo" value="<?php echo htmlspecialchars($user['pseudo']); ?>" required><br>
-                
-                <button type="submit">Mettre à jour le profil</button>
-            </form>
-
-            <!-- Bouton pour afficher le formulaire de publication -->
-            <button id="btnAjouterPost">Ajouter un nouveau post</button>
-
-            <!-- Popup formulaire pour ajouter un nouveau post -->
-            <div id="popupForm" style="display:none;">
-                <h2>Ajouter un nouveau post</h2>
-                <form method="post" action="traiter-publication.php" enctype="multipart/form-data">
-                    <textarea name="contenu" placeholder="Votre post ici..." required></textarea><br>
-                    <input type="file" name="image" accept="image/*"><br>
-                    <button type="button" onclick="togglePopup()">Annuler</button>
-                    <button type="submit" name="submit">Ajouter</button>
+            <div class="user-profile">
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                    <label for="nom">Nom:</label>
+                    <input type="text" id="nom" name="nom" value="<?php echo htmlspecialchars($user['nom']); ?>" required><br>
+                    <label for="prenom">Prénom:</label>
+                    <input type="text" id="prenom" name="prenom" value="<?php echo htmlspecialchars($user['prenom']); ?>" required><br>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" autocomplete="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br>
+                    <label for="pseudo">Pseudo:</label>
+                    <input type="text" id="pseudo" name="pseudo" value="<?php echo htmlspecialchars($user['pseudo']); ?>" required><br>
+                    <button type="submit">Mettre à jour le profil</button>
                 </form>
+                <button id="btnAjouterPost">Ajouter un nouveau post</button>
+                <div id="popupForm" style="display:none;">
+                    <h2>Ajouter un nouveau post</h2>
+                    <form method="post" action="traiter-publication.php" enctype="multipart/form-data">
+                        <textarea name="contenu" placeholder="Votre post ici..." required></textarea><br>
+                        <input type="file" name="image" accept="image/*"><br>
+                        <button type="button" onclick="togglePopup()">Annuler</button>
+                        <button type="submit" name="submit">Ajouter</button>
+                    </form>
+                </div>
             </div>
         <?php endif; ?>
-
-        <!-- Affichage des publications de l'utilisateur -->
         <h2>Publications</h2>
         <div id="publications">
             <?php foreach ($publications as $publication): ?>
                 <div class="publication" data-publication-id="<?php echo $publication['id']; ?>">
-                    <p>Posté par: <?php echo htmlspecialchars($publication['pseudo']); ?></p>
-                    <p>Date: <?php echo htmlspecialchars($publication['date_publication']); ?></p>
-                    <p><?php echo nl2br(htmlspecialchars($publication['contenu'])); ?></p>
-                    <?php if ($publication['chemin_image']): ?>
-                        <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image du post" style="width: 100px; height: auto;">
-                    <?php endif; ?>
-
-                    <?php if ($publication['id_Users'] == $_SESSION['Users_id']): ?>
-                    <!-- Logo de réglage et menu déroulant pour les publications de l'utilisateur -->
-                    <div class="settings-menu">
-                         <img src="setting.png" class="settings-icon">
-                       <div class="settings-dropdown" style="display:none;">
-                         <a href="modif-publication.php?id=<?php echo $publication['id']; ?>">Modifier</a>
-                         <a href="#" class="delete-post" data-publication-id="<?php echo $publication['id']; ?>">Supprimer</a>
-                      </div>
+                    <div class="publication-header">
+                        <h3 class="poster"><?php echo htmlspecialchars($publication['pseudo']); ?></h3>
+                        <span class="date"><?php echo htmlspecialchars($publication['date_publication']); ?></span>
                     </div>
-                    <?php endif; ?>
-            
-                    <!-- Section pour les likes -->
-                    <p>Likes: <span class="like-count" data-publication-id="<?php echo $publication['id']; ?>">
-                        <?php echo $publication['likes']; ?></span>
-                    </p>
-    
-                    <!-- Bouton pour liker la publication -->
-                    <form method="post" action="traiter-like.php" class="like-form" data-publication-id="<?php echo $publication['id']; ?>">
-                        <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
-                        <button type="submit" name="like">Like</button>
-                    </form>
-
-                    <!-- Section pour les commentaires -->
-                    <h3>Commentaires:</h3>
-                    <?php foreach ($publication['commentaires'] as $commentaire): ?>
-                        <div class="commentaire">
-                            <p><?php echo htmlspecialchars($commentaire['pseudo']); ?> (<?php echo htmlspecialchars($commentaire['date_commentaire']); ?>): <?php echo nl2br(htmlspecialchars($commentaire['contenu'])); ?></p>
+                    <div class="publication-body">
+                        <p><?php echo nl2br(htmlspecialchars($publication['contenu'])); ?></p>
+                        <?php if ($publication['chemin_image']): ?>
+                            <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image du post" class="publication-image">
+                        <?php endif; ?>
+                        <div class="publication-actions">
+                            <?php if ($publication['id_Users'] == $_SESSION['Users_id']): ?>
+                                <!-- Logo de réglage et menu déroulant pour les publications de l'utilisateur -->
+                                <div class="settings-menu">
+                                    <img src="setting.png" class="settings-icon">
+                                    <div class="settings-dropdown" style="display:none;">
+                                        <a href="modif-publication.php?id=<?php echo $publication['id']; ?>">Modifier</a>
+                                        <a href="#" class="delete-post" data-publication-id="<?php echo $publication['id']; ?>">Supprimer</a>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                            <p>Likes: <span class="like-count" data-publication-id="<?php echo $publication['id']; ?>">
+                                <?php echo $publication['likes']; ?></span>
+                            </p>
+                            <form method="post" action="traiter-like.php" class="like-form" data-publication-id="<?php echo $publication['id']; ?>">
+                                <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
+                                <button type="submit" name="like">Like</button>
+                            </form>
                         </div>
-                    <?php endforeach; ?>
-            
-                    <!-- Formulaire pour ajouter un commentaire -->
-                    <form method="post" action="traiter-commentaire.php">
-                        <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
-                        <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea><br>
-                        <button type="submit" name="comment">Commenter</button>
-                    </form>
+                    </div>
+                    <div class="comment-section">
+                        <h3>Commentaires:</h3>
+                        <?php foreach ($publication['commentaires'] as $commentaire): ?>
+                            <div class="commentaire">
+                                <p><?php echo htmlspecialchars($commentaire['pseudo']); ?> (<?php echo htmlspecialchars($commentaire['date_commentaire']); ?>): <?php echo nl2br(htmlspecialchars($commentaire['contenu'])); ?></p>
+                            </div>
+                        <?php endforeach; ?>
+                        <form method="post" action="traiter-commentaire.php">
+                            <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
+                            <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea><br>
+                            <button type="submit" name="comment">Commenter</button>
+                        </form>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
+    <?php endif; ?>
 </div>
 
         <div class="sidebar right">
