@@ -86,36 +86,6 @@ while ($publication = $resultPublications->fetch_assoc()) {
 
     $publications[] = $publication; // Ajoute la publication enrichie avec les likes et les commentaires au tableau
 }
-
-// Ajout pour vérifier le statut de l'amitié
-$isFriend = false;
-$query = "SELECT * FROM Relation WHERE 
-    (id_Users1 = ? AND id_Users2 = ? OR id_Users1 = ? AND id_Users2 = ?) 
-    AND statut = 'accepted'";
-$stmt = $mysqli->prepare($query);
-$stmt->bind_param("iiii", $currentUser, $profileUserId, $profileUserId, $currentUser);
-$stmt->execute();
-$result = $stmt->get_result();
-if ($result->num_rows > 0) {
-    $isFriend = true;
-}
-$stmt->close();
-
-//Récupérer les demandes d'amis entrantes
-$friendRequests = [];
-$queryRequests = "SELECT r.id as request_id, r.id_Users1, u.pseudo FROM Relation r 
-                  JOIN Users u ON u.id = r.id_Users1 
-                  WHERE r.id_Users2 = ? AND r.statut = 'pending'";
-$stmtRequests = $mysqli->prepare($queryRequests);
-$stmtRequests->bind_param("i", $currentUser);
-$stmtRequests->execute();
-$resultRequests = $stmtRequests->get_result();
-while ($row = $resultRequests->fetch_assoc()) {
-    $friendRequests[] = $row;
-}
-$stmtRequests->close();
-
-
 $stmtPublications->close();
 
 $mysqli->close();
@@ -144,41 +114,7 @@ $mysqli->close();
     </div>
 
     <div class="content">
-
-    
-    <div class="friend-requests">
-        <h2>Demandes d'amis</h2>
-        <?php foreach ($friendRequests as $request): ?>
-            <div class="friend-request">
-                <p>Demande de : <?php echo htmlspecialchars($request['pseudo']); ?></p>
-                <button class="accept-friend-request" data-request-id="<?php echo $request['request_id']; ?>">Accepter</button>
-                <button class="decline-friend-request" data-request-id="<?php echo $request['request_id']; ?>">Rejeter</button>
-            </div>
-        <?php endforeach; ?>
-    </div>
-    
-<div>
-    <h1>Profil</h1>
-    <!-- Logo ami et menu déroulant -->
-    <div class="friend-logo-container">
-        <?php if ($isFriend): ?>
-            <img src="user.png" alt="Amis" class="friend-logo">
-        <?php else: ?>
-            <img src="add-user.png" alt="Pas Amis" class="friend-logo">
-        <?php endif; ?>
-        <div class="friend-actions" style="display:none;">
-            <?php if (!$isFriend): ?>
-                <a href="#" class="action-friend add-friend" data-action="add" data-user-id="<?php echo $profileUserId; ?>">Ajouter en ami</a>
-            <?php endif; ?>
-            <a href="#" class="action-friend block-user" data-action="block" data-user-id="<?php echo $profileUserId; ?>">Bloquer</a>
-            <?php if ($isFriend): ?>
-                <a href="#" class="action-friend remove-friend" data-action="remove" data-user-id="<?php echo $profileUserId; ?>">Supprimer des amis</a>
-            <?php endif; ?>
-        </div>
-    </div>
-</div>
-
-
+    <h1>Profil de l'Utilisateur</h1>
     <?php if ($user): ?>
         <!-- Affichage et modification des informations du profil -->
         <?php if ($isOwnProfile): ?>
@@ -262,9 +198,87 @@ $mysqli->close();
         <!-- Contenu de la sidebar droite -->
              <p>Menu droite</p>
         </div>
-<script src="profilfriends.js"></script>
+
+
+        <script>
+            $(document).ready(function() {
+        // Fonction pour afficher/cacher le formulaire de publication
+        function togglePopup() {
+            var popup = document.getElementById('popupForm');
+            popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Attacher l'événement onclick au bouton pour afficher/cacher le formulaire de publication
+        $('#btnAjouterPost').click(function() {
+            togglePopup();
+        });
+
+        // Écouteur d'événements pour le formulaire de like
+        $(document).on('submit', '.like-form', function(e) {
+            e.preventDefault(); // Empêcher la soumission traditionnelle du formulaire
+
+            var form = $(this);
+            var publicationId = form.data('publication-id');  // Récupère l'ID de la publication
+            var url = form.attr('action');
+
+            // Faire une requête AJAX pour traiter le like
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(), // Sérialiser les données du formulaire
+                success: function(response) {
+                    console.log("Réponse reçue : ", response);
+                    if (response.newLikeCount !== undefined) {
+                        // Mettre à jour le compteur de likes pour cette publication spécifique
+                        $('.like-count[data-publication-id="' + publicationId + '"]').text(response.newLikeCount);
+        
+                        // Vous pouvez également changer l'apparence du bouton like
+                        form.find('[name="like"]').toggleClass('liked');
+                    } else if (response.error) {
+                        console.error("Erreur : ", response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Erreur AJAX : ", error);
+                }
+            });
+        });
+
+        // Ajout des autres scripts si nécessaire...
+    });
+        </script>
+        <script>
+        $(document).ready(function() {
+          $('.settings-icon').click(function() {
+           $(this).next('.settings-dropdown').toggle();
+        });
+
+    $('.delete-post').click(function(e) {
+        e.preventDefault();
+        var publicationId = $(this).data('publication-id');
+        if (confirm('Êtes-vous sûr de vouloir supprimer cette publication ?')) {
+            $.ajax({
+                url: 'sup-publication.php',
+                type: 'POST',
+                data: { id: publicationId },
+                success: function(response) {
+                    $('.publication[data-publication-id="' + publicationId + '"]').remove();
+                }
+            });
+        }
+    });
+
+    $(window).click(function(e) {
+        if (!$(e.target).hasClass('settings-icon') && !$(e.target).parents('.settings-menu').length) {
+            $('.settings-dropdown').hide();
+        }
+    });
+});
+        </script>
+
     <?php else: ?>
         <p>Profil non trouvé.</p>
     <?php endif; ?>
 </body>
 </html>
+
