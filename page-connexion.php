@@ -81,5 +81,6 @@ if (isset($error_message)) {
     <button type="submit">Se Connecter</button>
     </form>
 </body>
+<p>Pas encore de compte? <a href="page-inscription.php">Inscrivez-vous ici</a></p>
 
 </html>
