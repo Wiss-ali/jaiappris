@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page de Connexion</title>
-    <link rel="stylesheet" href="connexion.css">
+    <link rel="stylesheet" href="page-connexion.css">
     <link rel="icon" href="logo.wissico1.png" type="image/x-icon">
 </head>
 <body>
@@ -73,14 +73,19 @@ if (isset($error_message)) {
     echo "<p style='color: red;'>$error_message</p>";
 }
 ?>
-    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-    <label for="pseudo">pseudo :</label>
-    <input type="text" id="pseudo" name="pseudo" required><br>
-    <label for="mot_de_passe">Mot de passe :</label>
-    <input type="password" id="mot_de_passe" name="mot_de_passe" required>
-    <button type="submit">Se Connecter</button>
-    </form>
+   <div class="form-container">
+      <form class="form" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+        <div class="form-group">
+           <label for="pseudo">pseudo :</label>
+           <input type="text" id="pseudo" name="pseudo" required>
+        </div>
+        <div class="form-group">
+           <label for="mot_de_passe">Mot de passe :</label>
+           <input type="password" id="mot_de_passe" name="mot_de_passe" required>
+        </div>
+        <button type="submit" class="form-submit-btn">Se Connecter</button>
+      </form>
+      <p>Pas encore de compte? <a href="page-inscription.php">Inscrivez-vous ici</a></p>
+    </div>
 </body>
-<p>Pas encore de compte? <a href="page-inscription.php">Inscrivez-vous ici</a></p>
-
 </html>
