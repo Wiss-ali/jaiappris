@@ -86,6 +86,36 @@ while ($publication = $resultPublications->fetch_assoc()) {
 
     $publications[] = $publication; // Ajoute la publication enrichie avec les likes et les commentaires au tableau
 }
+
+// Ajout pour vérifier le statut de l'amitié
+$isFriend = false;
+$query = "SELECT * FROM Relation WHERE 
+    (id_Users1 = ? AND id_Users2 = ? OR id_Users1 = ? AND id_Users2 = ?) 
+    AND statut = 'accepted'";
+$stmt = $mysqli->prepare($query);
+$stmt->bind_param("iiii", $currentUser, $profileUserId, $profileUserId, $currentUser);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result->num_rows > 0) {
+    $isFriend = true;
+}
+$stmt->close();
+
+//Récupérer les demandes d'amis entrantes
+$friendRequests = [];
+$queryRequests = "SELECT r.id as request_id, r.id_Users1, u.pseudo FROM Relation r 
+                  JOIN Users u ON u.id = r.id_Users1 
+                  WHERE r.id_Users2 = ? AND r.statut = 'pending'";
+$stmtRequests = $mysqli->prepare($queryRequests);
+$stmtRequests->bind_param("i", $currentUser);
+$stmtRequests->execute();
+$resultRequests = $stmtRequests->get_result();
+while ($row = $resultRequests->fetch_assoc()) {
+    $friendRequests[] = $row;
+}
+$stmtRequests->close();
+
+
 $stmtPublications->close();
 
 $mysqli->close();
@@ -98,132 +128,141 @@ $mysqli->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil de l'Utilisateur</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="reglagemenu.css"> 
+    <link rel="stylesheet" href="publication-commentaires.css">
 </head>
 <body>
-    <h1>Profil de l'Utilisateur</h1>
+    <div class="header">
+        <!-- Contenu de l'en-tête ici, comme le titre, le menu, etc. -->
+        <a href="page-accueil.php" style="color: white; margin-left: 20px;">Page d'accueil</a>
+        <a href="deconnexion.php">Se déconnecter</a>
+    </div>
+
+    <div class="sidebar left">
+        <!-- Contenu de la sidebar gauche -->
+        <p>Menu gauche</p>
+    </div>
+
+    <div class="content">
+
+    
+    <div class="friend-requests">
+        <h2>Demandes d'amis</h2>
+        <?php foreach ($friendRequests as $request): ?>
+            <div class="friend-request">
+                <p>Demande de : <?php echo htmlspecialchars($request['pseudo']); ?></p>
+                <button class="accept-friend-request" data-request-id="<?php echo $request['request_id']; ?>">Accepter</button>
+                <button class="decline-friend-request" data-request-id="<?php echo $request['request_id']; ?>">Rejeter</button>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    
+<div>
+    <h1>Profil</h1>
+    <!-- Logo ami et menu déroulant -->
+    <div class="friend-logo-container">
+        <?php if ($isFriend): ?>
+            <img src="user.png" alt="Amis" class="friend-logo">
+        <?php else: ?>
+            <img src="add-user.png" alt="Pas Amis" class="friend-logo">
+        <?php endif; ?>
+        <div class="friend-actions" style="display:none;">
+            <?php if (!$isFriend): ?>
+                <a href="#" class="action-friend add-friend" data-action="add" data-user-id="<?php echo $profileUserId; ?>">Ajouter en ami</a>
+            <?php endif; ?>
+            <a href="#" class="action-friend block-user" data-action="block" data-user-id="<?php echo $profileUserId; ?>">Bloquer</a>
+            <?php if ($isFriend): ?>
+                <a href="#" class="action-friend remove-friend" data-action="remove" data-user-id="<?php echo $profileUserId; ?>">Supprimer des amis</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+
     <?php if ($user): ?>
         <!-- Affichage et modification des informations du profil -->
         <?php if ($isOwnProfile): ?>
-            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <label for="nom">Nom:</label>
-                <input type="text" id="nom" name="nom" value="<?php echo htmlspecialchars($user['nom']); ?>" required><br>
-                
-                <label for="prenom">Prénom:</label>
-                <input type="text" id="prenom" name="prenom" value="<?php echo htmlspecialchars($user['prenom']); ?>" required><br>
-                
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br>
-                
-                <label for="pseudo">Pseudo:</label>
-                <input type="text" id="pseudo" name="pseudo" value="<?php echo htmlspecialchars($user['pseudo']); ?>" required><br>
-                
-                <button type="submit">Mettre à jour le profil</button>
-            </form>
-
-            <!-- Bouton pour afficher le formulaire de publication -->
-            <button id="btnAjouterPost">Ajouter un nouveau post</button>
-
-            <!-- Popup formulaire pour ajouter un nouveau post -->
-            <div id="popupForm" style="display:none;">
-                <h2>Ajouter un nouveau post</h2>
-                <form method="post" action="traiter-publication.php" enctype="multipart/form-data">
-                    <textarea name="contenu" placeholder="Votre post ici..." required></textarea><br>
-                    <input type="file" name="image" accept="image/*"><br>
-                    <button type="button" onclick="togglePopup()">Annuler</button>
-                    <button type="submit" name="submit">Ajouter</button>
+            <div class="user-profile">
+                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                    <label for="nom">Nom:</label>
+                    <input type="text" id="nom" name="nom" value="<?php echo htmlspecialchars($user['nom']); ?>" required><br>
+                    <label for="prenom">Prénom:</label>
+                    <input type="text" id="prenom" name="prenom" value="<?php echo htmlspecialchars($user['prenom']); ?>" required><br>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" autocomplete="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br>
+                    <label for="pseudo">Pseudo:</label>
+                    <input type="text" id="pseudo" name="pseudo" value="<?php echo htmlspecialchars($user['pseudo']); ?>" required><br>
+                    <button type="submit">Mettre à jour le profil</button>
                 </form>
+                <button id="btnAjouterPost">Ajouter un nouveau post</button>
+                <div id="popupForm" style="display:none;">
+                    <h2>Ajouter un nouveau post</h2>
+                    <form method="post" action="traiter-publication.php" enctype="multipart/form-data">
+                        <textarea name="contenu" placeholder="Votre post ici..." required></textarea><br>
+                        <input type="file" name="image" accept="image/*"><br>
+                        <button type="button" onclick="togglePopup()">Annuler</button>
+                        <button type="submit" name="submit">Ajouter</button>
+                    </form>
+                </div>
             </div>
         <?php endif; ?>
-
-        <!-- Affichage des publications de l'utilisateur -->
         <h2>Publications</h2>
         <div id="publications">
             <?php foreach ($publications as $publication): ?>
-                <div class="publication">
-                    <p>Posté par: <?php echo htmlspecialchars($publication['pseudo']); ?></p>
-                    <p>Date: <?php echo htmlspecialchars($publication['date_publication']); ?></p>
-                    <p><?php echo nl2br(htmlspecialchars($publication['contenu'])); ?></p>
-                    <?php if ($publication['chemin_image']): ?>
-                        <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image du post" style="width: 100px; height: auto;">
-                    <?php endif; ?>
-            
-                    <!-- Section pour les likes -->
-                    <p>Likes: <span class="like-count" data-publication-id="<?php echo $publication['id']; ?>">
-                        <?php echo $publication['likes']; ?></span>
-                    </p>
-    
-                    <!-- Bouton pour liker la publication -->
-                    <form method="post" action="traiter-like.php" class="like-form" data-publication-id="<?php echo $publication['id']; ?>">
-                        <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
-                        <button type="submit" name="like">Like</button>
-                    </form>
-
-                    <!-- Section pour les commentaires -->
-                    <h3>Commentaires:</h3>
-                    <?php foreach ($publication['commentaires'] as $commentaire): ?>
-                        <div class="commentaire">
-                            <p><?php echo htmlspecialchars($commentaire['pseudo']); ?> (<?php echo htmlspecialchars($commentaire['date_commentaire']); ?>): <?php echo nl2br(htmlspecialchars($commentaire['contenu'])); ?></p>
+                <div class="publication" data-publication-id="<?php echo $publication['id']; ?>">
+                    <div class="publication-header">
+                        <h3 class="poster"><?php echo htmlspecialchars($publication['pseudo']); ?></h3>
+                        <span class="date"><?php echo htmlspecialchars($publication['date_publication']); ?></span>
+                    </div>
+                    <div class="publication-body">
+                        <p><?php echo nl2br(htmlspecialchars($publication['contenu'])); ?></p>
+                        <?php if ($publication['chemin_image']): ?>
+                            <img src="<?php echo htmlspecialchars($publication['chemin_image']); ?>" alt="Image du post" class="publication-image">
+                        <?php endif; ?>
+                        <div class="publication-actions">
+                            <?php if ($publication['id_Users'] == $_SESSION['Users_id']): ?>
+                                <!-- Logo de réglage et menu déroulant pour les publications de l'utilisateur -->
+                                <div class="settings-menu">
+                                    <img src="setting.png" class="settings-icon">
+                                    <div class="settings-dropdown" style="display:none;">
+                                        <a href="modif-publication.php?id=<?php echo $publication['id']; ?>">Modifier</a>
+                                        <a href="#" class="delete-post" data-publication-id="<?php echo $publication['id']; ?>">Supprimer</a>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                            <p>Likes: <span class="like-count" data-publication-id="<?php echo $publication['id']; ?>">
+                                <?php echo $publication['likes']; ?></span>
+                            </p>
+                            <form method="post" action="traiter-like.php" class="like-form" data-publication-id="<?php echo $publication['id']; ?>">
+                                <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
+                                <button type="submit" name="like">Like</button>
+                            </form>
                         </div>
-                    <?php endforeach; ?>
-            
-                    <!-- Formulaire pour ajouter un commentaire -->
-                    <form method="post" action="traiter-commentaire.php">
-                        <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
-                        <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea><br>
-                        <button type="submit" name="comment">Commenter</button>
-                    </form>
+                    </div>
+                    <div class="comment-section">
+                        <h3>Commentaires:</h3>
+                        <?php foreach ($publication['commentaires'] as $commentaire): ?>
+                            <div class="commentaire">
+                                <p><?php echo htmlspecialchars($commentaire['pseudo']); ?> (<?php echo htmlspecialchars($commentaire['date_commentaire']); ?>): <?php echo nl2br(htmlspecialchars($commentaire['contenu'])); ?></p>
+                            </div>
+                        <?php endforeach; ?>
+                        <form method="post" action="traiter-commentaire.php">
+                            <input type="hidden" name="id_publication" value="<?php echo $publication['id']; ?>">
+                            <textarea name="contenu" placeholder="Ajouter un commentaire..." required></textarea><br>
+                            <button type="submit" name="comment">Commenter</button>
+                        </form>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
+</div>
 
-        <script>
-            $(document).ready(function() {
-    // Fonction pour afficher/cacher le formulaire de publication
-    function togglePopup() {
-        var popup = document.getElementById('popupForm');
-        popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
-    }
 
-    // Attacher l'événement onclick au bouton pour afficher/cacher le formulaire de publication
-    $('#btnAjouterPost').click(function() {
-        togglePopup();
-    });
-
-    // Écouteur d'événements pour le formulaire de like
-    $(document).on('submit', '.like-form', function(e) {
-        e.preventDefault(); // Empêcher la soumission traditionnelle du formulaire
-
-        var form = $(this);
-        var publicationId = form.data('publication-id');  // Récupère l'ID de la publication
-        var url = form.attr('action');
-
-        // Faire une requête AJAX pour traiter le like
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: form.serialize(), // Sérialiser les données du formulaire
-            success: function(response) {
-                console.log("Réponse reçue : ", response);
-                if (response.newLikeCount !== undefined) {
-                    // Mettre à jour le compteur de likes pour cette publication spécifique
-                    $('.like-count[data-publication-id="' + publicationId + '"]').text(response.newLikeCount);
-        
-                    // Vous pouvez également changer l'apparence du bouton like
-                    form.find('[name="like"]').toggleClass('liked');
-                } else if (response.error) {
-                    console.error("Erreur : ", response.error);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("Erreur AJAX : ", error);
-            }
-        });
-    });
-
-    // Ajout des autres scripts si nécessaire...
-});
-        </script>
-        <a href="deconnexion.php">Se déconnecter</a>
+        <div class="sidebar right">
+        <!-- Contenu de la sidebar droite -->
+             <p>Menu droite</p>
+        </div>
+<script src="profilfriends.js"></script>
     <?php else: ?>
         <p>Profil non trouvé.</p>
     <?php endif; ?>
