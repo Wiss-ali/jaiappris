@@ -67,13 +67,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="icon" href="logo.wissico1.png" type="image/x-icon">
 </head>
 <body>
-   <h2>Connexion</h2>
+   
 <?php
 if (isset($error_message)) {
     echo "<p style='color: red;'>$error_message</p>";
 }
 ?>
    <div class="form-container">
+      <h2>Connexion</h2>
       <form class="form" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
         <div class="form-group">
            <label for="pseudo">pseudo :</label>
