@@ -57,8 +57,21 @@ $mysqli->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page d'accueil</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="chemin_vers_votre_fichier_css.css">
 </head>
 <body>
+
+    <div class="header">
+        <!-- Contenu de l'en-tête ici -->
+        <h1>Posts récents</h1>
+    </div>
+
+    <div class="sidebar left">
+        <!-- Contenu de la sidebar gauche -->
+        <p>Menu gauche</p>
+    </div>
+
+<div class="content">
     <h1>Posts récents</h1>
     <div id="publications">
     <?php foreach ($posts as $publication): ?>
@@ -100,6 +113,12 @@ $mysqli->close();
         </div>
     <?php endforeach; ?>
     </div>
+
+    <div class="sidebar right">
+        <!-- Contenu de la sidebar droite -->
+        <p>Menu droite</p>
+    </div>
+</div>
 
     <script>
                 // Ajout du script AJAX pour le traitement des likes
